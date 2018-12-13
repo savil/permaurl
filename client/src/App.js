@@ -6,7 +6,14 @@ import truffleContract from "truffle-contract";
 import "./App.css";
 
 class App extends Component {
-  state = { storageValue: 0, web3: null, accounts: null, contract: null };
+  state = {
+		accounts: null,
+		contract: null,
+		fullURL: '',
+		message: '',
+		storageValue: 0,
+		web3: null
+	};
 
   componentDidMount = async () => {
     try {
@@ -36,11 +43,15 @@ class App extends Component {
   runExample = async () => {
     const { accounts, contract } = this.state;
 
+		console.log('setting 5 in contract', accounts[0]);
+
     // Stores a given value, 5 by default.
     await contract.set(5, { from: accounts[0] });
 
     // Get the value from the contract to prove it worked.
     const response = await contract.get();
+
+		console.log('contract returned value', response.toNumber());
 
     // Update state with the result.
     this.setState({ storageValue: response.toNumber() });
@@ -52,19 +63,47 @@ class App extends Component {
     }
     return (
       <div className="App">
-        <h1>Good to Go!</h1>
-        <p>Your Truffle Box is installed and ready.</p>
-        <h2>Smart Contract Example</h2>
-        <p>
-          If your contracts compiled and migrated successfully, below will show
-          a stored value of 5 (by default).
-        </p>
-        <p>
-          Try changing the value stored on <strong>line 40</strong> of App.js.
-        </p>
-        <div>The stored value is: {this.state.storageValue}</div>
+        <header className="App-header">
+					<form onSubmit={this.onSubmit.bind(this)}>
+						<input
+							className="fullURLInput"
+							onChange={this.onFullURLChange.bind(this)}
+							placeholder="enter full url here"
+							type="text"
+							value={this.state.value}
+						/>
+						<input className="fullURLSubmit" type="submit" value="submit" />
+
+						<p> {this.state.message} </p>
+					</form>
+        </header>
       </div>
     );
+	}
+
+	onFullURLChange(e) {
+		this.setState({ fullURL: e.target.value });
+	}
+
+	onSubmit(e) {
+		e.preventDefault();
+		console.log('hit submit for value ', this.state.fullURL);
+		if (this.state.fullURL === '') {
+			// TODO show UI that fullURL is empty
+			this.setState({ message: 'yo! please enter a full url in the box' });
+			return;
+		}
+
+		this.setState({ message: '' });
+		this.saveToEthereum();
+	}
+
+	saveToEthereum() {
+		// hash it
+
+		// send hash => original to ethereum
+
+		// display result
   }
 }
 

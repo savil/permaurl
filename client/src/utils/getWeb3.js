@@ -12,7 +12,9 @@ const getWeb3 = () =>
           await window.ethereum.enable();
           // Acccounts now exposed
           resolve(web3);
+					console.log('resolved web3');
         } catch (error) {
+					console.log('rejected web3');
           reject(error);
         }
       }
