@@ -5,36 +5,54 @@
       "constant": false,
       "inputs": [
         {
+          "name": "hashedURL",
+          "type": "bytes32"
+        },
+        {
           "name": "fullURL",
           "type": "string"
         }
       ],
       "name": "set",
-      "outputs": [
-        {
-          "name": "",
-          "type": "bytes32"
-        }
-      ],
+      "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
       "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "hashedURL",
+          "type": "bytes32"
+        }
+      ],
+      "name": "get",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
     }
   ],
-  "bytecode": "0x608060405234801561001057600080fd5b50610239806100206000396000f300608060405260043610610041576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff1680634ed3885e14610046575b600080fd5b34801561005257600080fd5b506100ad600480360381019080803590602001908201803590602001908080601f01602080910402602001604051908101604052809392919081815260200183838082843782019150505050505091929192905050506100cb565b60405180826000191660001916815260200191505060405180910390f35b600080826040518082805190602001908083835b60208310151561010457805182526020820191506020810190506020830392506100df565b6001836020036101000a038019825116818451168082178552505050505050905001915050604051809103902090508260008083600019166000191681526020019081526020016000209080519060200190610161929190610168565b5050919050565b828054600181600116156101000203166002900490600052602060002090601f016020900481019282601f106101a957805160ff19168380011785556101d7565b828001600101855582156101d7579182015b828111156101d65782518255916020019190600101906101bb565b5b5090506101e491906101e8565b5090565b61020a91905b808211156102065760008160009055506001016101ee565b5090565b905600a165627a7a72305820212698eae4eed2b3034ee3b26178f996da7c1adebfb45f36ca4e36159cf39e810029",
-  "deployedBytecode": "0x608060405260043610610041576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff1680634ed3885e14610046575b600080fd5b34801561005257600080fd5b506100ad600480360381019080803590602001908201803590602001908080601f01602080910402602001604051908101604052809392919081815260200183838082843782019150505050505091929192905050506100cb565b60405180826000191660001916815260200191505060405180910390f35b600080826040518082805190602001908083835b60208310151561010457805182526020820191506020810190506020830392506100df565b6001836020036101000a038019825116818451168082178552505050505050905001915050604051809103902090508260008083600019166000191681526020019081526020016000209080519060200190610161929190610168565b5050919050565b828054600181600116156101000203166002900490600052602060002090601f016020900481019282601f106101a957805160ff19168380011785556101d7565b828001600101855582156101d7579182015b828111156101d65782518255916020019190600101906101bb565b5b5090506101e491906101e8565b5090565b61020a91905b808211156102065760008160009055506001016101ee565b5090565b905600a165627a7a72305820212698eae4eed2b3034ee3b26178f996da7c1adebfb45f36ca4e36159cf39e810029",
-  "sourceMap": "26:215:0:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;26:215:0;;;;;;;",
-  "deployedSourceMap": "26:215:0:-;;;;;;;;;;;;;;;;;;;;;;;;107:132;;8:9:-1;5:2;;;30:1;27;20:12;5:2;107:132:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;152:7;165:14;192:7;182:18;;;;;;;;;;;;;36:153:-1;66:2;61:3;58:11;51:19;36:153;;;182:3;176:10;171:3;164:23;98:2;93:3;89:12;82:19;;123:2;118:3;114:12;107:19;;148:2;143:3;139:12;132:19;;36:153;;;274:1;267:3;263:2;259:12;254:3;250:22;246:30;315:4;311:9;305:3;299:10;295:26;356:4;350:3;344:10;340:21;389:7;380;377:20;372:3;365:33;3:399;;;182:18:0;;;;;;;;;;;;;;;;165:35;;228:7;204:13;:21;218:6;204:21;;;;;;;;;;;;;;;;;:31;;;;;;;;;;;;:::i;:::-;;107:132;;;;:::o;26:215::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;:::o;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;:::o",
-  "source": "pragma solidity ^0.4.24;\n\ncontract PermaURLStorage {\n\n\tmapping(bytes32 => string) private hashToFullURL;\n\n\tfunction set(string fullURL) public returns (bytes32) {\n\t\tbytes32 hashed = keccak256(fullURL);\n\t\thashToFullURL[hashed] = fullURL;\n\t}\n}\n",
+  "bytecode": "0x608060405234801561001057600080fd5b50610332806100206000396000f30060806040526004361061004c576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff1680638eaa6ac014610051578063b4800033146100fb575b600080fd5b34801561005d57600080fd5b506100806004803603810190808035600019169060200190929190505050610172565b6040518080602001828103825283818151815260200191508051906020019080838360005b838110156100c05780820151818401526020810190506100a5565b50505050905090810190601f1680156100ed5780820380516001836020036101000a031916815260200191505b509250505060405180910390f35b34801561010757600080fd5b506101706004803603810190808035600019169060200190929190803590602001908201803590602001908080601f016020809104026020016040519081016040528093929190818152602001838380828437820191505050505050919291929050505061022e565b005b606060008083600019166000191681526020019081526020016000208054600181600116156101000203166002900480601f0160208091040260200160405190810160405280929190818152602001828054600181600116156101000203166002900480156102225780601f106101f757610100808354040283529160200191610222565b820191906000526020600020905b81548152906001019060200180831161020557829003601f168201915b50505050509050919050565b806000808460001916600019168152602001908152602001600020908051906020019061025c929190610261565b505050565b828054600181600116156101000203166002900490600052602060002090601f016020900481019282601f106102a257805160ff19168380011785556102d0565b828001600101855582156102d0579182015b828111156102cf5782518255916020019190600101906102b4565b5b5090506102dd91906102e1565b5090565b61030391905b808211156102ff5760008160009055506001016102e7565b5090565b905600a165627a7a72305820766e2e696804701b5bb1f3fb0166af5b0b9437ee06974284a79022517c68de4f0029",
+  "deployedBytecode": "0x60806040526004361061004c576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff1680638eaa6ac014610051578063b4800033146100fb575b600080fd5b34801561005d57600080fd5b506100806004803603810190808035600019169060200190929190505050610172565b6040518080602001828103825283818151815260200191508051906020019080838360005b838110156100c05780820151818401526020810190506100a5565b50505050905090810190601f1680156100ed5780820380516001836020036101000a031916815260200191505b509250505060405180910390f35b34801561010757600080fd5b506101706004803603810190808035600019169060200190929190803590602001908201803590602001908080601f016020809104026020016040519081016040528093929190818152602001838380828437820191505050505050919291929050505061022e565b005b606060008083600019166000191681526020019081526020016000208054600181600116156101000203166002900480601f0160208091040260200160405190810160405280929190818152602001828054600181600116156101000203166002900480156102225780601f106101f757610100808354040283529160200191610222565b820191906000526020600020905b81548152906001019060200180831161020557829003601f168201915b50505050509050919050565b806000808460001916600019168152602001908152602001600020908051906020019061025c929190610261565b505050565b828054600181600116156101000203166002900490600052602060002090601f016020900481019282601f106102a257805160ff19168380011785556102d0565b828001600101855582156102d0579182015b828111156102cf5782518255916020019190600101906102b4565b5b5090506102dd91906102e1565b5090565b61030391905b808211156102ff5760008160009055506001016102e7565b5090565b905600a165627a7a72305820766e2e696804701b5bb1f3fb0166af5b0b9437ee06974284a79022517c68de4f0029",
+  "sourceMap": "26:317:0:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;26:317:0;;;;;;;",
+  "deployedSourceMap": "26:317:0:-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;208:133;;8:9:-1;5:2;;;30:1;27;20:12;5:2;208:133:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;23:1:-1;8:100;33:3;30:1;27:10;8:100;;;99:1;94:3;90:11;84:18;80:1;75:3;71:11;64:39;52:2;49:1;45:10;40:15;;8:100;;;12:14;208:133:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;107:97;;8:9:-1;5:2;;;30:1;27;20:12;5:2;107:97:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;208:133;261:6;313:13;:24;327:9;313:24;;;;;;;;;;;;;;;;;306:31;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;208:133;;;:::o;107:97::-;193:7;166:13;:24;180:9;166:24;;;;;;;;;;;;;;;;;:34;;;;;;;;;;;;:::i;:::-;;107:97;;:::o;26:317::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;:::o;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;:::o",
+  "source": "pragma solidity ^0.4.24;\n\ncontract PermaURLStorage {\n\n\tmapping(bytes32 => string) private hashToFullURL;\n\n\tfunction set(bytes32 hashedURL, string fullURL) public {\n\t\thashToFullURL[hashedURL] = fullURL;\n\t}\n\n  function get(bytes32 hashedURL) public view returns (string) {\n\t\t// TODO return null if missing\n\t\treturn hashToFullURL[hashedURL];\n\t}\n}\n",
   "sourcePath": "/Users/savil/code/permaurl/contracts/PermaURLStorage.sol",
   "ast": {
     "absolutePath": "/Users/savil/code/permaurl/contracts/PermaURLStorage.sol",
     "exportedSymbols": {
       "PermaURLStorage": [
-        26
+        32
       ]
     },
-    "id": 27,
+    "id": 33,
     "nodeType": "SourceUnit",
     "nodes": [
       {
@@ -54,9 +72,9 @@
         "contractKind": "contract",
         "documentation": null,
         "fullyImplemented": true,
-        "id": 26,
+        "id": 32,
         "linearizedBaseContracts": [
-          26
+          32
         ],
         "name": "PermaURLStorage",
         "nodeType": "ContractDefinition",
@@ -66,7 +84,7 @@
             "id": 5,
             "name": "hashToFullURL",
             "nodeType": "VariableDeclaration",
-            "scope": 26,
+            "scope": 32,
             "src": "55:48:0",
             "stateVariable": true,
             "storageLocation": "default",
@@ -108,99 +126,14 @@
           },
           {
             "body": {
-              "id": 24,
+              "id": 18,
               "nodeType": "Block",
-              "src": "161:78:0",
+              "src": "162:42:0",
               "statements": [
-                {
-                  "assignments": [
-                    13
-                  ],
-                  "declarations": [
-                    {
-                      "constant": false,
-                      "id": 13,
-                      "name": "hashed",
-                      "nodeType": "VariableDeclaration",
-                      "scope": 25,
-                      "src": "165:14:0",
-                      "stateVariable": false,
-                      "storageLocation": "default",
-                      "typeDescriptions": {
-                        "typeIdentifier": "t_bytes32",
-                        "typeString": "bytes32"
-                      },
-                      "typeName": {
-                        "id": 12,
-                        "name": "bytes32",
-                        "nodeType": "ElementaryTypeName",
-                        "src": "165:7:0",
-                        "typeDescriptions": {
-                          "typeIdentifier": "t_bytes32",
-                          "typeString": "bytes32"
-                        }
-                      },
-                      "value": null,
-                      "visibility": "internal"
-                    }
-                  ],
-                  "id": 17,
-                  "initialValue": {
-                    "argumentTypes": null,
-                    "arguments": [
-                      {
-                        "argumentTypes": null,
-                        "id": 15,
-                        "name": "fullURL",
-                        "nodeType": "Identifier",
-                        "overloadedDeclarations": [],
-                        "referencedDeclaration": 7,
-                        "src": "192:7:0",
-                        "typeDescriptions": {
-                          "typeIdentifier": "t_string_memory_ptr",
-                          "typeString": "string memory"
-                        }
-                      }
-                    ],
-                    "expression": {
-                      "argumentTypes": [
-                        {
-                          "typeIdentifier": "t_string_memory_ptr",
-                          "typeString": "string memory"
-                        }
-                      ],
-                      "id": 14,
-                      "name": "keccak256",
-                      "nodeType": "Identifier",
-                      "overloadedDeclarations": [],
-                      "referencedDeclaration": 35,
-                      "src": "182:9:0",
-                      "typeDescriptions": {
-                        "typeIdentifier": "t_function_sha3_pure$__$returns$_t_bytes32_$",
-                        "typeString": "function () pure returns (bytes32)"
-                      }
-                    },
-                    "id": 16,
-                    "isConstant": false,
-                    "isLValue": false,
-                    "isPure": false,
-                    "kind": "functionCall",
-                    "lValueRequested": false,
-                    "names": [],
-                    "nodeType": "FunctionCall",
-                    "src": "182:18:0",
-                    "typeDescriptions": {
-                      "typeIdentifier": "t_bytes32",
-                      "typeString": "bytes32"
-                    }
-                  },
-                  "nodeType": "VariableDeclarationStatement",
-                  "src": "165:35:0"
-                },
                 {
                   "expression": {
                     "argumentTypes": null,
-                    "id": 22,
+                    "id": 16,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -209,26 +142,26 @@
                       "argumentTypes": null,
                       "baseExpression": {
                         "argumentTypes": null,
-                        "id": 18,
+                        "id": 12,
                         "name": "hashToFullURL",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
                         "referencedDeclaration": 5,
-                        "src": "204:13:0",
+                        "src": "166:13:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_mapping$_t_bytes32_$_t_string_storage_$",
                           "typeString": "mapping(bytes32 => string storage ref)"
                         }
                       },
-                      "id": 20,
+                      "id": 14,
                       "indexExpression": {
                         "argumentTypes": null,
-                        "id": 19,
-                        "name": "hashed",
+                        "id": 13,
+                        "name": "hashedURL",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 13,
-                        "src": "218:6:0",
+                        "referencedDeclaration": 7,
+                        "src": "180:9:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_bytes32",
                           "typeString": "bytes32"
@@ -239,7 +172,7 @@
                       "isPure": false,
                       "lValueRequested": true,
                       "nodeType": "IndexAccess",
-                      "src": "204:21:0",
+                      "src": "166:24:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_string_storage",
                         "typeString": "string storage ref"
@@ -249,31 +182,31 @@
                     "operator": "=",
                     "rightHandSide": {
                       "argumentTypes": null,
-                      "id": 21,
+                      "id": 15,
                       "name": "fullURL",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 7,
-                      "src": "228:7:0",
+                      "referencedDeclaration": 9,
+                      "src": "193:7:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_string_memory_ptr",
                         "typeString": "string memory"
                       }
                     },
-                    "src": "204:31:0",
+                    "src": "166:34:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_string_storage",
                       "typeString": "string storage ref"
                     }
                   },
-                  "id": 23,
+                  "id": 17,
                   "nodeType": "ExpressionStatement",
-                  "src": "204:31:0"
+                  "src": "166:34:0"
                 }
               ]
             },
             "documentation": null,
-            "id": 25,
+            "id": 19,
             "implemented": true,
             "isConstructor": false,
             "isDeclaredConst": false,
@@ -281,16 +214,42 @@
             "name": "set",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 8,
+              "id": 10,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
                   "id": 7,
+                  "name": "hashedURL",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19,
+                  "src": "120:17:0",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 6,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "120:7:0",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 9,
                   "name": "fullURL",
                   "nodeType": "VariableDeclaration",
-                  "scope": 25,
-                  "src": "120:14:0",
+                  "scope": 19,
+                  "src": "139:14:0",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -298,10 +257,10 @@
                     "typeString": "string"
                   },
                   "typeName": {
-                    "id": 6,
+                    "id": 8,
                     "name": "string",
                     "nodeType": "ElementaryTypeName",
-                    "src": "120:6:0",
+                    "src": "139:6:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_string_storage_ptr",
                       "typeString": "string"
@@ -311,20 +270,94 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "119:16:0"
+              "src": "119:35:0"
             },
             "payable": false,
             "returnParameters": {
               "id": 11,
               "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "162:0:0"
+            },
+            "scope": 32,
+            "src": "107:97:0",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "public"
+          },
+          {
+            "body": {
+              "id": 30,
+              "nodeType": "Block",
+              "src": "269:72:0",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "baseExpression": {
+                      "argumentTypes": null,
+                      "id": 26,
+                      "name": "hashToFullURL",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 5,
+                      "src": "313:13:0",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_mapping$_t_bytes32_$_t_string_storage_$",
+                        "typeString": "mapping(bytes32 => string storage ref)"
+                      }
+                    },
+                    "id": 28,
+                    "indexExpression": {
+                      "argumentTypes": null,
+                      "id": 27,
+                      "name": "hashedURL",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 21,
+                      "src": "327:9:0",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bytes32",
+                        "typeString": "bytes32"
+                      }
+                    },
+                    "isConstant": false,
+                    "isLValue": true,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "nodeType": "IndexAccess",
+                    "src": "313:24:0",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_string_storage",
+                      "typeString": "string storage ref"
+                    }
+                  },
+                  "functionReturnParameters": 25,
+                  "id": 29,
+                  "nodeType": "Return",
+                  "src": "306:31:0"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 31,
+            "implemented": true,
+            "isConstructor": false,
+            "isDeclaredConst": true,
+            "modifiers": [],
+            "name": "get",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 22,
+              "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 10,
-                  "name": "",
+                  "id": 21,
+                  "name": "hashedURL",
                   "nodeType": "VariableDeclaration",
-                  "scope": 25,
-                  "src": "152:7:0",
+                  "scope": 31,
+                  "src": "221:17:0",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -332,10 +365,10 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 9,
+                    "id": 20,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
-                    "src": "152:7:0",
+                    "src": "221:7:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -345,29 +378,63 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "151:9:0"
+              "src": "220:19:0"
             },
-            "scope": 26,
-            "src": "107:132:0",
-            "stateMutability": "nonpayable",
+            "payable": false,
+            "returnParameters": {
+              "id": 25,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 24,
+                  "name": "",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 31,
+                  "src": "261:6:0",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_memory_ptr",
+                    "typeString": "string"
+                  },
+                  "typeName": {
+                    "id": 23,
+                    "name": "string",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "261:6:0",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_string_storage_ptr",
+                      "typeString": "string"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "260:8:0"
+            },
+            "scope": 32,
+            "src": "208:133:0",
+            "stateMutability": "view",
             "superFunction": null,
             "visibility": "public"
           }
         ],
-        "scope": 27,
-        "src": "26:215:0"
+        "scope": 33,
+        "src": "26:317:0"
       }
     ],
-    "src": "0:242:0"
+    "src": "0:344:0"
   },
   "legacyAST": {
     "absolutePath": "/Users/savil/code/permaurl/contracts/PermaURLStorage.sol",
     "exportedSymbols": {
       "PermaURLStorage": [
-        26
+        32
       ]
     },
-    "id": 27,
+    "id": 33,
     "nodeType": "SourceUnit",
     "nodes": [
       {
@@ -387,9 +454,9 @@
         "contractKind": "contract",
         "documentation": null,
         "fullyImplemented": true,
-        "id": 26,
+        "id": 32,
         "linearizedBaseContracts": [
-          26
+          32
         ],
         "name": "PermaURLStorage",
         "nodeType": "ContractDefinition",
@@ -399,7 +466,7 @@
             "id": 5,
             "name": "hashToFullURL",
             "nodeType": "VariableDeclaration",
-            "scope": 26,
+            "scope": 32,
             "src": "55:48:0",
             "stateVariable": true,
             "storageLocation": "default",
@@ -441,99 +508,14 @@
           },
           {
             "body": {
-              "id": 24,
+              "id": 18,
               "nodeType": "Block",
-              "src": "161:78:0",
+              "src": "162:42:0",
               "statements": [
-                {
-                  "assignments": [
-                    13
-                  ],
-                  "declarations": [
-                    {
-                      "constant": false,
-                      "id": 13,
-                      "name": "hashed",
-                      "nodeType": "VariableDeclaration",
-                      "scope": 25,
-                      "src": "165:14:0",
-                      "stateVariable": false,
-                      "storageLocation": "default",
-                      "typeDescriptions": {
-                        "typeIdentifier": "t_bytes32",
-                        "typeString": "bytes32"
-                      },
-                      "typeName": {
-                        "id": 12,
-                        "name": "bytes32",
-                        "nodeType": "ElementaryTypeName",
-                        "src": "165:7:0",
-                        "typeDescriptions": {
-                          "typeIdentifier": "t_bytes32",
-                          "typeString": "bytes32"
-                        }
-                      },
-                      "value": null,
-                      "visibility": "internal"
-                    }
-                  ],
-                  "id": 17,
-                  "initialValue": {
-                    "argumentTypes": null,
-                    "arguments": [
-                      {
-                        "argumentTypes": null,
-                        "id": 15,
-                        "name": "fullURL",
-                        "nodeType": "Identifier",
-                        "overloadedDeclarations": [],
-                        "referencedDeclaration": 7,
-                        "src": "192:7:0",
-                        "typeDescriptions": {
-                          "typeIdentifier": "t_string_memory_ptr",
-                          "typeString": "string memory"
-                        }
-                      }
-                    ],
-                    "expression": {
-                      "argumentTypes": [
-                        {
-                          "typeIdentifier": "t_string_memory_ptr",
-                          "typeString": "string memory"
-                        }
-                      ],
-                      "id": 14,
-                      "name": "keccak256",
-                      "nodeType": "Identifier",
-                      "overloadedDeclarations": [],
-                      "referencedDeclaration": 35,
-                      "src": "182:9:0",
-                      "typeDescriptions": {
-                        "typeIdentifier": "t_function_sha3_pure$__$returns$_t_bytes32_$",
-                        "typeString": "function () pure returns (bytes32)"
-                      }
-                    },
-                    "id": 16,
-                    "isConstant": false,
-                    "isLValue": false,
-                    "isPure": false,
-                    "kind": "functionCall",
-                    "lValueRequested": false,
-                    "names": [],
-                    "nodeType": "FunctionCall",
-                    "src": "182:18:0",
-                    "typeDescriptions": {
-                      "typeIdentifier": "t_bytes32",
-                      "typeString": "bytes32"
-                    }
-                  },
-                  "nodeType": "VariableDeclarationStatement",
-                  "src": "165:35:0"
-                },
                 {
                   "expression": {
                     "argumentTypes": null,
-                    "id": 22,
+                    "id": 16,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -542,26 +524,26 @@
                       "argumentTypes": null,
                       "baseExpression": {
                         "argumentTypes": null,
-                        "id": 18,
+                        "id": 12,
                         "name": "hashToFullURL",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
                         "referencedDeclaration": 5,
-                        "src": "204:13:0",
+                        "src": "166:13:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_mapping$_t_bytes32_$_t_string_storage_$",
                           "typeString": "mapping(bytes32 => string storage ref)"
                         }
                       },
-                      "id": 20,
+                      "id": 14,
                       "indexExpression": {
                         "argumentTypes": null,
-                        "id": 19,
-                        "name": "hashed",
+                        "id": 13,
+                        "name": "hashedURL",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 13,
-                        "src": "218:6:0",
+                        "referencedDeclaration": 7,
+                        "src": "180:9:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_bytes32",
                           "typeString": "bytes32"
@@ -572,7 +554,7 @@
                       "isPure": false,
                       "lValueRequested": true,
                       "nodeType": "IndexAccess",
-                      "src": "204:21:0",
+                      "src": "166:24:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_string_storage",
                         "typeString": "string storage ref"
@@ -582,31 +564,31 @@
                     "operator": "=",
                     "rightHandSide": {
                       "argumentTypes": null,
-                      "id": 21,
+                      "id": 15,
                       "name": "fullURL",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 7,
-                      "src": "228:7:0",
+                      "referencedDeclaration": 9,
+                      "src": "193:7:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_string_memory_ptr",
                         "typeString": "string memory"
                       }
                     },
-                    "src": "204:31:0",
+                    "src": "166:34:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_string_storage",
                       "typeString": "string storage ref"
                     }
                   },
-                  "id": 23,
+                  "id": 17,
                   "nodeType": "ExpressionStatement",
-                  "src": "204:31:0"
+                  "src": "166:34:0"
                 }
               ]
             },
             "documentation": null,
-            "id": 25,
+            "id": 19,
             "implemented": true,
             "isConstructor": false,
             "isDeclaredConst": false,
@@ -614,16 +596,42 @@
             "name": "set",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 8,
+              "id": 10,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
                   "id": 7,
+                  "name": "hashedURL",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19,
+                  "src": "120:17:0",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 6,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "120:7:0",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 9,
                   "name": "fullURL",
                   "nodeType": "VariableDeclaration",
-                  "scope": 25,
-                  "src": "120:14:0",
+                  "scope": 19,
+                  "src": "139:14:0",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -631,10 +639,10 @@
                     "typeString": "string"
                   },
                   "typeName": {
-                    "id": 6,
+                    "id": 8,
                     "name": "string",
                     "nodeType": "ElementaryTypeName",
-                    "src": "120:6:0",
+                    "src": "139:6:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_string_storage_ptr",
                       "typeString": "string"
@@ -644,20 +652,94 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "119:16:0"
+              "src": "119:35:0"
             },
             "payable": false,
             "returnParameters": {
               "id": 11,
               "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "162:0:0"
+            },
+            "scope": 32,
+            "src": "107:97:0",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "public"
+          },
+          {
+            "body": {
+              "id": 30,
+              "nodeType": "Block",
+              "src": "269:72:0",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "baseExpression": {
+                      "argumentTypes": null,
+                      "id": 26,
+                      "name": "hashToFullURL",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 5,
+                      "src": "313:13:0",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_mapping$_t_bytes32_$_t_string_storage_$",
+                        "typeString": "mapping(bytes32 => string storage ref)"
+                      }
+                    },
+                    "id": 28,
+                    "indexExpression": {
+                      "argumentTypes": null,
+                      "id": 27,
+                      "name": "hashedURL",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 21,
+                      "src": "327:9:0",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bytes32",
+                        "typeString": "bytes32"
+                      }
+                    },
+                    "isConstant": false,
+                    "isLValue": true,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "nodeType": "IndexAccess",
+                    "src": "313:24:0",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_string_storage",
+                      "typeString": "string storage ref"
+                    }
+                  },
+                  "functionReturnParameters": 25,
+                  "id": 29,
+                  "nodeType": "Return",
+                  "src": "306:31:0"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 31,
+            "implemented": true,
+            "isConstructor": false,
+            "isDeclaredConst": true,
+            "modifiers": [],
+            "name": "get",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 22,
+              "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 10,
-                  "name": "",
+                  "id": 21,
+                  "name": "hashedURL",
                   "nodeType": "VariableDeclaration",
-                  "scope": 25,
-                  "src": "152:7:0",
+                  "scope": 31,
+                  "src": "221:17:0",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -665,10 +747,10 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 9,
+                    "id": 20,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
-                    "src": "152:7:0",
+                    "src": "221:7:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -678,26 +760,67 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "151:9:0"
+              "src": "220:19:0"
             },
-            "scope": 26,
-            "src": "107:132:0",
-            "stateMutability": "nonpayable",
+            "payable": false,
+            "returnParameters": {
+              "id": 25,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 24,
+                  "name": "",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 31,
+                  "src": "261:6:0",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_memory_ptr",
+                    "typeString": "string"
+                  },
+                  "typeName": {
+                    "id": 23,
+                    "name": "string",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "261:6:0",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_string_storage_ptr",
+                      "typeString": "string"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "260:8:0"
+            },
+            "scope": 32,
+            "src": "208:133:0",
+            "stateMutability": "view",
             "superFunction": null,
             "visibility": "public"
           }
         ],
-        "scope": 27,
-        "src": "26:215:0"
+        "scope": 33,
+        "src": "26:317:0"
       }
     ],
-    "src": "0:242:0"
+    "src": "0:344:0"
   },
   "compiler": {
     "name": "solc",
     "version": "0.4.24+commit.e67f0147.Emscripten.clang"
   },
-  "networks": {},
+  "networks": {
+    "5778": {
+      "events": {},
+      "links": {},
+      "address": "0x6bdbb2eabeb2ae6c0ed6828475d24e5ce45e59d0",
+      "transactionHash": "0x2dc190b29cc59b587206bddb173b713aa19e22f091486018a715c68cdfbcb6f1"
+    }
+  },
   "schemaVersion": "2.0.1",
-  "updatedAt": "2018-12-13T19:36:14.894Z"
+  "updatedAt": "2018-12-14T19:40:11.165Z"
 }
