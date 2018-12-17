@@ -17,7 +17,7 @@ contract PermaURLStorage {
 	}
 
   function get(bytes32 hashedURL) public view returns (bytes) {
-		// TODO return null if missing
+		// returns 0x0 if empty
 		return hashToFullURL[hashedURL];
 	}
 }
