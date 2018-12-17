@@ -37,12 +37,12 @@ class App extends Component {
 	}
 
 	onFullURLChange(e) {
+		e.preventDefault();
 		this.setState({ fullURL: e.target.value });
 	}
 
 	async onSubmit(e) {
 		e.preventDefault();
-		console.log('hit submit for value ', this.state.fullURL);
 		if (this.state.fullURL === '') {
 			this.setState({ message: 'yo! please enter a full url in the box' });
 			return;
@@ -51,10 +51,13 @@ class App extends Component {
 		// ensure web3 is hooked up
 		await this.initWeb3();
 
-		const hashed = await this.getHashedURL(this.state.fullURL);
-		console.log('got hash', hashed);
-		this.setState({ message: 'hashed url is: ' + hashed});
-		this.saveToEthereum();
+		const hashedURL = await this.getHashedURL(this.state.fullURL);
+		if (hashedURL === null) {
+			return;
+		}
+		this.setState({ message: 'hashed url is: ' + hashedURL});
+
+		await this.saveToEthereum(hashedURL);
 	}
 
 	async initWeb3() {
@@ -62,11 +65,9 @@ class App extends Component {
 			// already init'd
 			return;
 		}
-		console.log('trying to init web3');
     try {
       // Get network provider and web3 instance.
       const web3 = await getWeb3Async();
-			console.log('got web3!');
 
       // Use web3 to get the user's accounts.
       const accounts = await web3.eth.getAccounts();
@@ -75,12 +76,10 @@ class App extends Component {
       const Contract = truffleContract(PermaURLStorageContract);
       Contract.setProvider(web3.currentProvider);
       const instance = await Contract.deployed();
-			console.log('got contract instance');
 
       // Set web3, accounts, and contract to the state, and then proceed with an
       // example of interacting with the contract's methods.
       this.setState({ web3, accounts, contract: instance });
-			console.log('set web3 state');
     } catch (error) {
       // Catch any errors for any of the above operations.
       alert(
@@ -89,7 +88,6 @@ class App extends Component {
       console.log(error);
     }
 
-		console.log('exiting initWeb3');
 	}
 
 	// first, check if custom-url is specified, and if so,
@@ -97,13 +95,28 @@ class App extends Component {
 	// second, check if the fullURL has already been posted and return that
 	// third, actually post to storage
 	async getHashedURL(fullURL) {
-		return await this.sha256(fullURL);
+		const bigHash = await this.sha256(fullURL);
+
+		var totalAttempts = 0; // try 10 times and otherwise declare bankruptcy!
+		while (totalAttempts < 10) {
+
+			const hashedURL = bigHash.substring(0, 3 + totalAttempts);
+			const prevSavedURL = await this.state.contract.get.call(this.state.web3.utils.fromAscii(hashedURL));
+			if (prevSavedURL === null) {
+				return hashedURL;
+			}
+
+			totalAttempts++;
+		}
+
+		this.setState({ message: 'failed to do the needful!' });
+		return null;
 	}
 
 	// credit: https://gist.github.com/chrisveness/e5a07769d06ed02a2587df16742d3fdd
 	async sha256(message) {
 		// encode as UTF-8
-    const msgUint8 = new TextEncoder('utf-8').encode(message);
+    const msgUint8 = new TextEncoder('utf-8').encode(message + Date.now());
 		// hash the message
     const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
 		// convert hash to byte array
@@ -113,12 +126,20 @@ class App extends Component {
     return hashHex;
 }
 
-	saveToEthereum() {
-		// hash it
+	async saveToEthereum(hashedURL) {
 
 		// send hash => original to ethereum
+		await this.state.contract.set(
+			this.state.web3.utils.asciiToHex(hashedURL),
+			this.state.web3.utils.asciiToHex(this.state.fullURL),
+			{ from: this.state.accounts[0] }
+		);
 
 		// display result
+		const savedFullURLRaw = await this.state.contract.get.call(this.state.web3.utils.asciiToHex(hashedURL));
+		const savedFullURL = this.state.web3.utils.toAscii(savedFullURLRaw);
+
+		this.setState({ message: "savedFullURL: " + savedFullURL + " with hash: " + hashedURL});
   }
 }
 
