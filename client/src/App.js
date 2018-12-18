@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import PermaURLStorageContract from "./contracts/PermaURLStorage.json";
 import { getWeb3Async } from "./utils/getWeb3";
+import { getHostname, getURLForRedirect } from "./utils/Host";
 import truffleContract from "truffle-contract";
 
 import "./App.css";
@@ -15,6 +16,24 @@ class App extends Component {
 		web3: null
 	};
 
+	async componentWillMount() {
+		// pathname is more than just "/"
+		const pathname = window.location.pathname;
+		if (pathname.length > 1) {
+			const hashedURL = pathname.substring(1);
+			const components = await this.getWeb3Components({accounts: false});
+
+			const fullURLRaw = await components.contract.get.call(
+				components.web3.utils.asciiToHex(hashedURL)
+			);
+			if (fullURLRaw === null) {
+				return;
+			}
+			const fullURL = components.web3.utils.toAscii(fullURLRaw);
+			window.location = getURLForRedirect(fullURL);
+		}
+	}
+
   render() {
     return (
       <div className="App">
@@ -28,9 +47,8 @@ class App extends Component {
 							value={this.state.value}
 						/>
 						<input className="fullURLSubmit" type="submit" value="submit" />
-
-						<p> {this.state.message} </p>
 					</form>
+					<p> {this.state.message} </p>
         </header>
       </div>
     );
@@ -65,21 +83,36 @@ class App extends Component {
 			// already init'd
 			return;
 		}
+
+		const components = await this.getWeb3Components({accounts : true});
+
+		// Set web3, accounts, and contract to the state, and then proceed with an
+		// example of interacting with the contract's methods.
+		this.setState({
+			web3: components.web3,
+			accounts: components.accounts,
+			contract: components.contract
+		});
+	}
+
+	async getWeb3Components(options) {
     try {
       // Get network provider and web3 instance.
-      const web3 = await getWeb3Async();
+			const web3 = await getWeb3Async({accounts: options.accounts});
 
       // Use web3 to get the user's accounts.
-      const accounts = await web3.eth.getAccounts();
+      var accounts = null;
+			if (options.accounts) {
+				accounts = await web3.eth.getAccounts();
+			}
 
       // Get the contract instance.
       const Contract = truffleContract(PermaURLStorageContract);
       Contract.setProvider(web3.currentProvider);
       const instance = await Contract.deployed();
 
-      // Set web3, accounts, and contract to the state, and then proceed with an
-      // example of interacting with the contract's methods.
-      this.setState({ web3, accounts, contract: instance });
+			return { web3, accounts, contract : instance };
+
     } catch (error) {
       // Catch any errors for any of the above operations.
       alert(
@@ -90,10 +123,6 @@ class App extends Component {
 
 	}
 
-	// first, check if custom-url is specified, and if so,
-	//   post that to storage
-	// second, check if the fullURL has already been posted and return that
-	// third, actually post to storage
 	async getHashedURL(fullURL) {
 		const bigHash = await this.sha256(fullURL);
 
@@ -109,7 +138,7 @@ class App extends Component {
 			totalAttempts++;
 		}
 
-		this.setState({ message: 'failed to do the needful!' });
+		this.setState({ message: 'failed to generate a suitable hash! Bummer.' });
 		return null;
 	}
 
@@ -135,11 +164,12 @@ class App extends Component {
 			{ from: this.state.accounts[0] }
 		);
 
-		// display result
-		const savedFullURLRaw = await this.state.contract.get.call(this.state.web3.utils.asciiToHex(hashedURL));
-		const savedFullURL = this.state.web3.utils.toAscii(savedFullURLRaw);
-
-		this.setState({ message: "savedFullURL: " + savedFullURL + " with hash: " + hashedURL});
+		this.setState({
+			message:
+				<a className="App-link" href={getHostname() + "/" + hashedURL}>
+				{getHostname() + "/" + hashedURL}
+				</a>
+		});
   }
 }
 

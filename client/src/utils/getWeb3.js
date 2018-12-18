@@ -5,7 +5,7 @@ export const getWeb3 = () =>
     // Wait for loading completion to avoid race conditions with web3 injection timing.
     window.addEventListener("load", async () => {
 			try {
-				const web3 = await getWeb3Async();
+				const web3 = await getWeb3Async({accounts: true});
 				resolve(web3);
 			} catch (error) {
 				reject(error);
@@ -13,13 +13,17 @@ export const getWeb3 = () =>
    });
   });
 
-export const getWeb3Async = async () => {
+export const getWeb3Async = async (options) => {
   // Modern dapp browsers...
 	if (window.ethereum) {
 		const web3 = new Web3(window.ethereum);
-		// Request account access if needed
-		await window.ethereum.enable();
-		// Acccounts now exposed
+
+		if (options.accounts) {
+			// Request account access if needed
+			await window.ethereum.enable();
+		}
+
+		// Accounts now exposed
 		return web3;
 	}
 	// Legacy dapp browsers...
