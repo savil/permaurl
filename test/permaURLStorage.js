@@ -1,6 +1,7 @@
 const PermaURLStorage = artifacts.require("./PermaURLStorage.sol");
 
 contract("PermaURLStorage", accounts => {
+
 	it("...should store localhost:3030", async () => {
 		const instance = await PermaURLStorage.deployed();
 

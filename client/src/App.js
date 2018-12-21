@@ -6,6 +6,9 @@ import truffleContract from "truffle-contract";
 
 import "./App.css";
 
+//const MODE = "production";
+const MODE = "development";
+
 class App extends Component {
   state = {
 		accounts: null,
@@ -68,6 +71,7 @@ class App extends Component {
 
 		// ensure web3 is hooked up
 		await this.initWeb3();
+		console.log('done initweb3');
 
 		const hashedURL = await this.getHashedURL(this.state.fullURL);
 		if (hashedURL === null) {
@@ -109,7 +113,13 @@ class App extends Component {
       // Get the contract instance.
       const Contract = truffleContract(PermaURLStorageContract);
       Contract.setProvider(web3.currentProvider);
-      const instance = await Contract.deployed();
+
+			var instance = null;
+			if (MODE === "production") {
+				instance = await Contract.at("0xf0625cF19647fe7689Bc7b0B8C54aFFb71d94cb3");
+			} else {
+      	instance = await Contract.deployed();
+			}
 
 			return { web3, accounts, contract : instance };
 
@@ -119,8 +129,9 @@ class App extends Component {
         `Failed to load web3, accounts, or contract. Check console for details.`
       );
       console.log(error);
-    }
+			throw error;
 
+    }
 	}
 
 	async getHashedURL(fullURL) {
@@ -157,12 +168,22 @@ class App extends Component {
 
 	async saveToEthereum(hashedURL) {
 
+		// set loading indicator
+		this.setState({
+			message: "Alrighty, sending to ethereum. Will take like 20 seconds. " + this.getEncouragement()
+		});
+
 		// send hash => original to ethereum
-		await this.state.contract.set(
-			this.state.web3.utils.asciiToHex(hashedURL),
-			this.state.web3.utils.asciiToHex(this.state.fullURL),
-			{ from: this.state.accounts[0] }
-		);
+		try {
+			await this.state.contract.set(
+				this.state.web3.utils.asciiToHex(hashedURL),
+				this.state.web3.utils.asciiToHex(this.state.fullURL),
+				{ from: this.state.accounts[0] }
+			);
+		} catch (_e) {
+			this.setState({message: "There was an error posting to ethereum. Sad puppy :-("});
+			return;
+		}
 
 		this.setState({
 			message:
@@ -171,6 +192,20 @@ class App extends Component {
 				</a>
 		});
   }
+
+	getEncouragement() {
+		const encouragements = [
+			"Be patient, and hold your horses!",
+			"Close your eyes and think about your first true love!",
+			"A good time to step back, and do some stretches!",
+			"But if you stare real hard, it'll happen faster! Promise ;-)",
+			"Close your eyes, and meditate on the sounds around you!",
+			"Close your eyes, and meditate on your breathing!",
+			"A test of your will power is commencing. Try your best to not switch to reddit or twitter!"
+		];
+		const randIndex = Math.floor(Math.random() * encouragements.length);
+		return encouragements[randIndex];
+	}
 }
 
 export default App;
