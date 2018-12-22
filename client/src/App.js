@@ -71,7 +71,6 @@ class App extends Component {
 
 		// ensure web3 is hooked up
 		await this.initWeb3();
-		console.log('done initweb3');
 
 		const hashedURL = await this.getHashedURL(this.state.fullURL);
 		if (hashedURL === null) {
