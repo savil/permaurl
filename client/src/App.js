@@ -6,8 +6,8 @@ import truffleContract from "truffle-contract";
 
 import "./App.css";
 
-//const MODE = "production";
-const MODE = "development";
+const MODE = "production";
+//const MODE = "development";
 
 class App extends Component {
   state = {
