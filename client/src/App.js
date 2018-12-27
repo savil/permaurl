@@ -20,6 +20,8 @@ class App extends Component {
 	};
 
 	async componentWillMount() {
+		document.title = "CrispLnk: shorten dat link!"
+
 		// pathname is more than just "/"
 		const pathname = window.location.pathname;
 		if (pathname.length > 1) {
