@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PermaURLStorageContract from "./contracts/PermaURLStorage.json";
 import { getWeb3Async } from "./utils/getWeb3";
-import { getHostname, getURLForRedirect } from "./utils/Host";
+import { getHashedURL, getURLForRedirect } from "./utils/Host";
 import truffleContract from "truffle-contract";
 
 import "./App.css";
@@ -191,8 +191,8 @@ class App extends Component {
 
 		this.setState({
 			message:
-				<a className="App-link" href={getHostname() + "/" + hashedURL}>
-				{getHostname() + "/#/" + hashedURL}
+				<a className="App-link" href={getHashedURL(hashedURL)}>
+				{getHashedURL(hashedURL)}
 				</a>
 		});
   }

@@ -1,4 +1,9 @@
-export function getHostname() {
+
+export function getHashedURL(hashedURL) {
+  return getHostname() + "/#/" + hashedURL;
+}
+
+function getHostname() {
 	return window.location.protocol + "//" + window.location.host;
 }
 
