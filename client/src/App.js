@@ -22,21 +22,24 @@ class App extends Component {
 	async componentWillMount() {
 		document.title = "CrispLnk: shorten dat link!"
 
-		// pathname is more than just "/"
-		const pathname = window.location.pathname;
-		if (pathname.length > 1) {
-			const hashedURL = pathname.substring(1);
-			const components = await this.getWeb3Components({accounts: false});
+		const locationHash = window.location.hash;
 
-			const fullURLRaw = await components.contract.get.call(
-				components.web3.utils.asciiToHex(hashedURL)
-			);
-			if (fullURLRaw === null) {
-				return;
-			}
-			const fullURL = components.web3.utils.toAscii(fullURLRaw);
-			window.location = getURLForRedirect(fullURL);
-		}
+		// locationHash is more than just "#/"
+		if (locationHash.length <= 2) {
+      return;
+    }
+
+    const hashedURL = locationHash.substring(2);
+    const components = await this.getWeb3Components({accounts: false});
+
+    const fullURLRaw = await components.contract.get.call(
+      components.web3.utils.asciiToHex(hashedURL)
+    );
+    if (fullURLRaw === null) {
+      return;
+    }
+    const fullURL = components.web3.utils.toAscii(fullURLRaw);
+    window.location = getURLForRedirect(fullURL);
 	}
 
   render() {
@@ -189,7 +192,7 @@ class App extends Component {
 		this.setState({
 			message:
 				<a className="App-link" href={getHostname() + "/" + hashedURL}>
-				{getHostname() + "/" + hashedURL}
+				{getHostname() + "/#/" + hashedURL}
 				</a>
 		});
   }
