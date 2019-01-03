@@ -1,13 +1,28 @@
 import React, { Component } from "react";
 import PermaURLStorageContract from "./contracts/PermaURLStorage.json";
-import { getWeb3Async } from "./utils/getWeb3";
+import { getWeb3Async, getWeb3ReadOnlyAsync } from "./utils/getWeb3";
 import { getHashedURL, getURLForRedirect } from "./utils/Host";
 import truffleContract from "truffle-contract";
 
 import "./App.css";
 
-const MODE = "production";
-//const MODE = "development";
+// TODO move to utils
+const Mode = {
+  MAINNET: "mainnet",
+  ROPSTEN: "ropsten"
+};
+//const MODE = Mode.MAINNET;
+const MODE = Mode.ROPSTEN;
+
+const Permissions = {
+  READ_ONLY: "read_only",
+  READ_WRITE: "read_write"
+};
+
+const ContractAddress = {
+  MAINNET_ADDRESS: "0xf0625cF19647fe7689Bc7b0B8C54aFFb71d94cb3",
+  ROPSTEN_ADDRESS: "0x0c72eb3f9ad6c762c17adae11ffd2458ce533ef4"
+};
 
 class App extends Component {
   state = {
@@ -30,7 +45,7 @@ class App extends Component {
     }
 
     const hashedURL = locationHash.substring(2);
-    const components = await this.getWeb3Components({accounts: false});
+    const components = await this.getWeb3Components(Permissions.READ_ONLY);
 
     const fullURLRaw = await components.contract.get.call(
       components.web3.utils.asciiToHex(hashedURL)
@@ -92,7 +107,7 @@ class App extends Component {
 			return;
 		}
 
-		const components = await this.getWeb3Components({accounts : true});
+		const components = await this.getWeb3Components(Permissions.READ_WRITE);
 
 		// Set web3, accounts, and contract to the state, and then proceed with an
 		// example of interacting with the contract's methods.
@@ -103,14 +118,16 @@ class App extends Component {
 		});
 	}
 
-	async getWeb3Components(options) {
+	async getWeb3Components(permissions) {
     try {
       // Get network provider and web3 instance.
-			const web3 = await getWeb3Async({accounts: options.accounts});
+			const web3 = (permissions === Permissions.READ_ONLY)
+        ? await getWeb3ReadOnlyAsync(MODE)
+        : await getWeb3Async();
 
       // Use web3 to get the user's accounts.
       var accounts = null;
-			if (options.accounts) {
+			if (permissions === Permissions.READ_WRITE) {
 				accounts = await web3.eth.getAccounts();
 			}
 
@@ -119,10 +136,10 @@ class App extends Component {
       Contract.setProvider(web3.currentProvider);
 
 			var instance = null;
-			if (MODE === "production") {
-				instance = await Contract.at("0xf0625cF19647fe7689Bc7b0B8C54aFFb71d94cb3");
+			if (MODE === Mode.MAINNET) {
+				instance = await Contract.at(ContractAddress.MAINNET_ADDRESS);
 			} else {
-      	instance = await Contract.deployed();
+      	instance = await Contract.at(ContractAddress.ROPSTEN_ADDRESS);
 			}
 
 			return { web3, accounts, contract : instance };
@@ -134,7 +151,6 @@ class App extends Component {
       );
       console.log(error);
 			throw error;
-
     }
 	}
 
@@ -184,7 +200,8 @@ class App extends Component {
 				this.state.web3.utils.asciiToHex(this.state.fullURL),
 				{ from: this.state.accounts[0] }
 			);
-		} catch (_e) {
+		} catch (e) {
+      console.error(e);
 			this.setState({message: "There was an error posting to ethereum. Sad puppy :-("});
 			return;
 		}

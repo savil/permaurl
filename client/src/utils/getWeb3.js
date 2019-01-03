@@ -1,4 +1,5 @@
 import Web3 from "web3";
+import HDWalletProvider from "truffle-hdwallet-provider";
 
 export const getWeb3 = () =>
   new Promise((resolve, reject) => {
@@ -13,15 +14,26 @@ export const getWeb3 = () =>
    });
   });
 
-export const getWeb3Async = async (options) => {
+export const getWeb3ReadOnlyAsync = async(mode) => {
+    // just some rando mnemonic. It has no money in it, and is used
+    // for making read-only queries to infura/ethereum.
+    const mnemonic = "truth project dilemma ramp hint dream custom produce country skate search view";
+    const server = mode === "ropsten"
+      ? "https://ropsten.infura.io/v3/cb7d847147034deab366ab3169602261"
+      : "https://mainnet.infura.io/v3/cb7d847147034deab366ab3169602261";
+
+    const provider = new HDWalletProvider(mnemonic, server);
+    return new Web3(provider);
+}
+
+export const getWeb3Async = async () => {
+
   // Modern dapp browsers...
 	if (window.ethereum) {
 		const web3 = new Web3(window.ethereum);
 
-		if (options.accounts) {
-			// Request account access if needed
-			await window.ethereum.enable();
-		}
+    // Request account access if needed
+    await window.ethereum.enable();
 
 		// Accounts now exposed
 		return web3;
