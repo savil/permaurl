@@ -1,5 +1,6 @@
 import Web3 from "web3";
 import HDWalletProvider from "truffle-hdwallet-provider";
+import { Mode } from "./mode";
 
 export const getWeb3 = () =>
   new Promise((resolve, reject) => {
@@ -18,7 +19,7 @@ export const getWeb3ReadOnlyAsync = async(mode) => {
     // just some rando mnemonic. It has no money in it, and is used
     // for making read-only queries to infura/ethereum.
     const mnemonic = "truth project dilemma ramp hint dream custom produce country skate search view";
-    const server = mode === "ropsten"
+    const server = mode === Mode.ROPSTEN
       ? "https://ropsten.infura.io/v3/cb7d847147034deab366ab3169602261"
       : "https://mainnet.infura.io/v3/cb7d847147034deab366ab3169602261";
 

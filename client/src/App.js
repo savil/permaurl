@@ -2,15 +2,11 @@ import React, { Component } from "react";
 import PermaURLStorageContract from "./contracts/PermaURLStorage.json";
 import { getWeb3Async, getWeb3ReadOnlyAsync } from "./utils/getWeb3";
 import { getHashedURL, getURLForRedirect } from "./utils/Host";
+import { Mode } from "./utils/mode";
 import truffleContract from "truffle-contract";
 
 import "./App.css";
 
-// TODO move to utils
-const Mode = {
-  MAINNET: "mainnet",
-  ROPSTEN: "ropsten"
-};
 //const MODE = Mode.MAINNET;
 const MODE = Mode.ROPSTEN;
 
