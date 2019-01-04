@@ -3,6 +3,7 @@ import PermaURLStorageContract from "./contracts/PermaURLStorage.json";
 import { getWeb3Async, getWeb3ReadOnlyAsync } from "./utils/getWeb3";
 import { getHashedURL, getURLForRedirect } from "./utils/Host";
 import { Mode } from "./utils/mode";
+import Spinner from "./external/react-spinner/react-spinner";
 import truffleContract from "truffle-contract";
 
 import "./App.css";
@@ -25,6 +26,7 @@ class App extends Component {
 		accounts: null,
 		contract: null,
 		fullURL: '',
+    isSpinnerNeeded: false,
 		message: '',
 		storageValue: 0,
 		web3: null
@@ -54,6 +56,11 @@ class App extends Component {
 	}
 
   render() {
+    var spinner = null;
+    if (this.state.isSpinnerNeeded) {
+      spinner = <Spinner />;
+    }
+
     return (
       <div className="App">
         <header className="App-header">
@@ -68,6 +75,7 @@ class App extends Component {
 						<input className="fullURLSubmit" type="submit" value="submit" />
 					</form>
 					<p> {this.state.message} </p>
+          <div> {spinner} </div>
         </header>
       </div>
     );
@@ -186,6 +194,7 @@ class App extends Component {
 
 		// set loading indicator
 		this.setState({
+      isSpinnerNeeded: true,
 			message: "Alrighty, sending to ethereum. Will take like 20 seconds. " + this.getEncouragement()
 		});
 
@@ -198,11 +207,15 @@ class App extends Component {
 			);
 		} catch (e) {
       console.error(e);
-			this.setState({message: "There was an error posting to ethereum. Sad puppy :-("});
+			this.setState({
+        isSpinnerNeeded: false,
+        message: "There was an error posting to ethereum. Sad puppy :-("
+      });
 			return;
 		}
 
 		this.setState({
+      isSpinnerNeeded: false,
 			message:
 				<a className="App-link" href={getHashedURL(hashedURL)}>
 				{getHashedURL(hashedURL)}
