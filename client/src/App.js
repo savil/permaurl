@@ -74,7 +74,7 @@ class App extends Component {
 						/>
 						<input disabled={this.isSubmitDisabled()} className="fullURLSubmit" type="submit" value="submit" />
 					</form>
-					<p> {this.state.message} </p>
+					<p className="Message-container"> {this.state.message} </p>
           <div> {spinner} </div>
         </header>
       </div>
