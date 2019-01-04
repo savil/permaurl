@@ -1,6 +1,7 @@
 export const Mode = {
   MAINNET: "mainnet",
-  ROPSTEN: "ropsten"
+  ROPSTEN: "ropsten",
+  LOCALHOST: "localhost"
 };
 
 export default Mode;

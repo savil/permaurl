@@ -38,6 +38,14 @@
   max-width: 400px;
 }
 
+.Message-container a {
+  color: white;
+}
+
+.Message-container a:hover {
+  background-color: #6C6F78;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);

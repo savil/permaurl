@@ -3,6 +3,7 @@ import PermaURLStorageContract from "./contracts/PermaURLStorage.json";
 import { getWeb3Async, getWeb3ReadOnlyAsync } from "./utils/getWeb3";
 import { getHashedURL, getURLForRedirect } from "./utils/Host";
 import { Mode } from "./utils/mode";
+import { MissingWeb3Error } from "./utils/errors";
 import Spinner from "./external/react-spinner/react-spinner";
 import truffleContract from "truffle-contract";
 
@@ -44,6 +45,9 @@ class App extends Component {
 
     const hashedURL = locationHash.substring(2);
     const components = await this.getWeb3Components(Permissions.READ_ONLY);
+    if (components === null) {
+      return;
+    }
 
     const fullURLRaw = await components.contract.get.call(
       components.web3.utils.asciiToHex(hashedURL)
@@ -98,7 +102,21 @@ class App extends Component {
 		}
 
 		// ensure web3 is hooked up
-		await this.initWeb3();
+    try {
+		  await this.initWeb3();
+    } catch (error) {
+      if (error instanceof MissingWeb3Error) {
+        this.setState({
+          message:
+            <p>
+              Alas, looks like you will need to
+              install <a target="_blank" href="https://metamask.io">Metamask</a>.
+              This lets us save your URL securely.
+            </p>
+        });
+        return;
+      }
+    }
 
 		const hashedURL = await this.getHashedURL(this.state.fullURL);
 		if (hashedURL === null) {
@@ -116,6 +134,9 @@ class App extends Component {
 		}
 
 		const components = await this.getWeb3Components(Permissions.READ_WRITE);
+    if (components === null) {
+      return;
+    }
 
 		// Set web3, accounts, and contract to the state, and then proceed with an
 		// example of interacting with the contract's methods.
@@ -154,9 +175,6 @@ class App extends Component {
 
     } catch (error) {
       // Catch any errors for any of the above operations.
-      alert(
-        `Failed to load web3, accounts, or contract. Check console for details.`
-      );
       console.log(error);
 			throw error;
     }

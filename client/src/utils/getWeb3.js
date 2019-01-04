@@ -1,6 +1,7 @@
 import Web3 from "web3";
 import HDWalletProvider from "truffle-hdwallet-provider";
 import { Mode } from "./mode";
+import { MissingWeb3Error } from "./errors";
 
 export const getWeb3 = () =>
   new Promise((resolve, reject) => {
@@ -27,7 +28,7 @@ export const getWeb3ReadOnlyAsync = async(mode) => {
     return new Web3(provider);
 }
 
-export const getWeb3Async = async () => {
+export const getWeb3Async = async (mode) => {
 
   // Modern dapp browsers...
 	if (window.ethereum) {
@@ -46,13 +47,15 @@ export const getWeb3Async = async () => {
 		return web3;
 	}
 	// Fallback to localhost; use dev console port by default...
-	else {
+	else if (mode === Mode.LOCALHOST) {
 		const provider = new Web3.providers.HttpProvider(
 			"http://127.0.0.1:9545"
 		);
 		const web3 = new Web3(provider);
 		return web3;
-	}
+	} else {
+    throw new MissingWeb3Error("no web3 provider found");
+  }
 }
 
 export default getWeb3;
