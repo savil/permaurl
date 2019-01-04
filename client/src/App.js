@@ -72,7 +72,7 @@ class App extends Component {
 							type="text"
 							value={this.state.value}
 						/>
-						<input className="fullURLSubmit" type="submit" value="submit" />
+						<input disabled={this.isSubmitDisabled()} className="fullURLSubmit" type="submit" value="submit" />
 					</form>
 					<p> {this.state.message} </p>
           <div> {spinner} </div>
@@ -80,6 +80,10 @@ class App extends Component {
       </div>
     );
 	}
+
+  isSubmitDisabled() {
+    return this.state.isSpinnerNeeded;
+  }
 
 	onFullURLChange(e) {
 		e.preventDefault();
