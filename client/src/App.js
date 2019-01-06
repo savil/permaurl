@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import PermaURLStorageContract from "./contracts/PermaURLStorage.json";
 import { getWeb3Async, getWeb3ReadOnlyAsync } from "./utils/getWeb3";
 import { getHashedURL, getURLForRedirect } from "./utils/Host";
+import ModalDialog from "./ModalDialog"
 import { Mode } from "./utils/mode";
 import { MissingWeb3Error } from "./utils/errors";
 import Spinner from "./external/react-spinner/react-spinner";
@@ -29,6 +30,7 @@ class App extends Component {
 		fullURL: '',
     isSpinnerNeeded: false,
 		message: '',
+    showMetamaskDialog: false,
 		storageValue: 0,
 		web3: null
 	};
@@ -68,6 +70,19 @@ class App extends Component {
     return (
       <div className="App">
         <header className="App-header">
+          <ModalDialog
+            isVisible={this.state.showMetamaskDialog}
+            key={this.state.showMetamaskDialog}
+            onAcceptButtonClicked={this.onModalAcceptButtonClicked.bind(this)}
+            dialogShouldClose={this.dialogShouldClose.bind(this)}
+          >
+            Next, Metamask will open a dialog.
+            <br />
+            <br />
+            You will be asked to confirm the transaction for saving your URL to ethereum's blockchain.
+            <br />
+            <br />
+          </ModalDialog>
 					<form onSubmit={this.onSubmit.bind(this)}>
 						<input
 							className="fullURLInput"
@@ -110,13 +125,22 @@ class App extends Component {
           message:
             <p>
               Alas, looks like you will need to
-              install <a target="_blank" href="https://metamask.io">Metamask</a>.
+              install <a href="https://metamask.io" rel="noopener noreferrer" target="_blank">Metamask</a>.
               This lets us save your URL securely.
             </p>
         });
         return;
       }
     }
+
+    this.setState({showMetamaskDialog: true});
+  }
+
+  dialogShouldClose() {
+    this.setState({showMetamaskDialog: false});
+  }
+
+  async onModalAcceptButtonClicked() {
 
 		const hashedURL = await this.getHashedURL(this.state.fullURL);
 		if (hashedURL === null) {
