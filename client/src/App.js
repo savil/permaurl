@@ -27,8 +27,12 @@ class App extends Component {
   state = {
 		accounts: null,
 		contract: null,
+    customHash: '',
+    customHashTimeoutID: null,
 		fullURL: '',
     isSpinnerNeeded: false,
+    isSubmitEnabled: true,
+    linkPreview: '',
 		message: '',
     showMetamaskDialog: false,
 		storageValue: 0,
@@ -36,7 +40,7 @@ class App extends Component {
 	};
 
 	async componentWillMount() {
-		document.title = "CrispLnk: shorten dat link!"
+		document.title = "CrispLink: shorten that link!"
 
 		const locationHash = window.location.hash;
 
@@ -45,21 +49,29 @@ class App extends Component {
       return;
     }
 
-    const hashedURL = locationHash.substring(2);
+    const hash = locationHash.substring(2);
+    const fullURL = await this.getFullURLFromHash(hash);
+    window.location = getURLForRedirect(fullURL);
+	}
+
+  async isHashTaken(hash) {
+    return (await this.getFullURLFromHash(hash)) !== null;
+  }
+
+  async getFullURLFromHash(hash) {
     const components = await this.getWeb3Components(Permissions.READ_ONLY);
     if (components === null) {
-      return;
+      return null;
     }
 
     const fullURLRaw = await components.contract.get.call(
-      components.web3.utils.asciiToHex(hashedURL)
+      components.web3.utils.asciiToHex(hash)
     );
     if (fullURLRaw === null) {
-      return;
+      return null;
     }
-    const fullURL = components.web3.utils.toAscii(fullURLRaw);
-    window.location = getURLForRedirect(fullURL);
-	}
+    return components.web3.utils.toAscii(fullURLRaw);
+  }
 
   render() {
     var spinner = null;
@@ -89,11 +101,19 @@ class App extends Component {
 							onChange={this.onFullURLChange.bind(this)}
 							placeholder="enter full url here"
 							type="text"
-							value={this.state.value}
 						/>
+            <input
+              className="customHashInput"
+              onChange={this.onHashInputChange.bind(this)}
+              placeholder="(optional) specify your vanity url"
+              type="text"
+            />
+            <br />
 						<input disabled={this.isSubmitDisabled()} className="fullURLSubmit" type="submit" value="submit" />
 					</form>
+          <p className="LinkPreview-container"> {this.state.linkPreview} </p>
 					<p className="Message-container"> {this.state.message} </p>
+
           <div> {spinner} </div>
         </header>
       </div>
@@ -108,6 +128,41 @@ class App extends Component {
 		e.preventDefault();
 		this.setState({ fullURL: e.target.value });
 	}
+
+  async onHashInputChange(e) {
+    e.preventDefault();
+    if (this.state.customHashTimeoutID) {
+      clearTimeout(this.state.customHashTimeoutID);
+    }
+
+    const customHash = e.target.value;
+    const timeoutID = setTimeout(async () => this.onHashInputChangeImpl(customHash), 200);
+    this.setState({
+      customHashTimeoutID: timeoutID
+    });
+    return;
+  }
+
+  async onHashInputChangeImpl(customHash) {
+    this.setState({ customHash: customHash, customHashTimeoutID: null });
+
+    // check if hash is taken
+    // if taken, show message and disable submit
+    const isHashTaken = await this.isHashTaken();
+    if (isHashTaken) {
+      this.setState({
+        isSubmitEnabled: false,
+        message: customHash + " has already been taken. Please try another one"
+      });
+      return;
+    }
+
+    // if not taken, then show preview
+    this.setState({
+      isSubmitEnabled: true,
+      linkPreview: "your shortened url will be: " + getHashedURL(customHash)
+    });
+  }
 
 	async onSubmit(e) {
 		e.preventDefault();
@@ -142,10 +197,13 @@ class App extends Component {
 
   async onModalAcceptButtonClicked() {
 
-		const hashedURL = await this.getHashedURL(this.state.fullURL);
-		if (hashedURL === null) {
-			return;
-		}
+    var hashedURL = this.state.customHash;
+    if (hashedURL === '') {
+      hashedURL = await this.hashFullURL(this.state.fullURL);
+      if (hashedURL === null) {
+        return;
+      }
+    }
 		this.setState({ message: 'hashed url is: ' + hashedURL});
 
 		await this.saveToEthereum(hashedURL);
@@ -204,7 +262,7 @@ class App extends Component {
     }
 	}
 
-	async getHashedURL(fullURL) {
+	async hashFullURL(fullURL) {
 		const bigHash = await this.sha256(fullURL);
 
 		var totalAttempts = 0; // try 10 times and otherwise declare bankruptcy!

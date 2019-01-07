@@ -28,6 +28,12 @@
 	font-size: calc(10px + 1vmin);
 }
 
+.customHashInput {
+  width: 50%;
+  padding: 2px;
+  margin: 4px;
+}
+
 .fullURLSubmit {
 	width: 200px;
 	padding: 10px;
