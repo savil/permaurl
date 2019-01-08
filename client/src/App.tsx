@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+
 import PermaURLStorageContract from "./contracts/PermaURLStorage.json";
 import { getWeb3Async, getWeb3ReadOnlyAsync } from "./utils/getWeb3";
 import { getHashedURL, getURLForRedirect } from "./utils/Host";
@@ -7,6 +8,7 @@ import { Mode } from "./utils/mode";
 import { MissingWeb3Error } from "./utils/errors";
 import Spinner from "./external/react-spinner/react-spinner";
 import truffleContract from "truffle-contract";
+import { copyToClipboard } from "./utils/clipboard";
 
 import "./App.css";
 
@@ -333,14 +335,28 @@ class App extends Component {
 			return;
 		}
 
+    const resultHashedURL = getHashedURL(hashedURL);
+    const message =
+      <p>
+				{resultHashedURL}
+        &nbsp; &nbsp; &nbsp; &nbsp; (
+        <a
+          className="App-link"
+          onClick={() => this.copyResultToClipboard(resultHashedURL)}
+          >
+          copy
+        </a>
+        {')'}
+      </p>;
 		this.setState({
       isSpinnerNeeded: false,
       linkPreview: '',
-			message:
-				<a className="App-link" href={getHashedURL(hashedURL)}>
-				{getHashedURL(hashedURL)}
-				</a>
+			message: message
 		});
+  }
+
+  copyResultToClipboard(resultHashedURL: string) {
+    copyToClipboard(resultHashedURL);
   }
 
 	getEncouragement() {

@@ -19,6 +19,8 @@
 
 .App-link {
   color: #61dafb;
+  border-bottom-style: dotted;
+  border-bottom-width: 1px;
 }
 
 .fullURLInput {
