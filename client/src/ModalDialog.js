@@ -8,6 +8,11 @@ class ModalDialog extends Component {
     isVisible: this.props.isVisible
   };
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.isVisible !== this.props.isVisible) {
+      this.setState({isVisible: nextProps.isVisible});
+    }
+  }
 
   render() {
     const overlayStyle = {

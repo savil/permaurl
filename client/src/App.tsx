@@ -23,12 +23,28 @@ const ContractAddress = {
   ROPSTEN_ADDRESS: "0x0c72eb3f9ad6c762c17adae11ffd2458ce533ef4"
 };
 
+interface AppState {
+		accounts: any,
+		contract: any,
+    customHash: string | null,
+    customHashTimeoutID: number | undefined,
+		fullURL: string,
+    isSpinnerNeeded: boolean,
+    isSubmitEnabled: boolean,
+    linkPreview: string,
+		message: string,
+    showMetamaskDialog: boolean,
+		storageValue: number,
+		web3: null | any
+
+}
+
 class App extends Component {
-  state = {
+  state: AppState = {
 		accounts: null,
 		contract: null,
     customHash: '',
-    customHashTimeoutID: null,
+    customHashTimeoutID: undefined,
 		fullURL: '',
     isSpinnerNeeded: false,
     isSubmitEnabled: true,
@@ -51,14 +67,15 @@ class App extends Component {
 
     const hash = locationHash.substring(2);
     const fullURL = await this.getFullURLFromHash(hash);
-    window.location = getURLForRedirect(fullURL);
+    // TODO savil confirm this .href works
+    window.location.href = getURLForRedirect(fullURL);
 	}
 
-  async isHashTaken(hash) {
+  async isHashTaken(hash: string) {
     return (await this.getFullURLFromHash(hash)) !== null;
   }
 
-  async getFullURLFromHash(hash) {
+  async getFullURLFromHash(hash: string) {
     const components = await this.getWeb3Components(Permissions.READ_ONLY);
     if (components === null) {
       return null;
@@ -74,7 +91,7 @@ class App extends Component {
   }
 
   render() {
-    var spinner = null;
+    let spinner = null;
     if (this.state.isSpinnerNeeded) {
       spinner = <Spinner />;
     }
@@ -84,7 +101,6 @@ class App extends Component {
         <header className="App-header">
           <ModalDialog
             isVisible={this.state.showMetamaskDialog}
-            key={this.state.showMetamaskDialog}
             onAcceptButtonClicked={this.onModalAcceptButtonClicked.bind(this)}
             dialogShouldClose={this.dialogShouldClose.bind(this)}
           >
@@ -124,18 +140,18 @@ class App extends Component {
     return this.state.isSpinnerNeeded;
   }
 
-	onFullURLChange(e) {
+	onFullURLChange(e: React.FormEvent<HTMLInputElement>) {
 		e.preventDefault();
-		this.setState({ fullURL: e.target.value });
+		this.setState({ fullURL: e.currentTarget.value });
 	}
 
-  async onHashInputChange(e) {
+  async onHashInputChange(e: React.FormEvent<HTMLInputElement>) {
     e.preventDefault();
-    if (this.state.customHashTimeoutID) {
+    if (this.state.customHashTimeoutID !== undefined) {
       clearTimeout(this.state.customHashTimeoutID);
     }
 
-    const customHash = e.target.value;
+    const customHash = e.currentTarget.value;
     const timeoutID = setTimeout(async () => this.onHashInputChangeImpl(customHash), 200);
     this.setState({
       customHashTimeoutID: timeoutID
@@ -143,12 +159,12 @@ class App extends Component {
     return;
   }
 
-  async onHashInputChangeImpl(customHash) {
+  async onHashInputChangeImpl(customHash: string) {
     this.setState({ customHash: customHash, customHashTimeoutID: null });
 
     // check if hash is taken
     // if taken, show message and disable submit
-    const isHashTaken = await this.isHashTaken();
+    const isHashTaken = await this.isHashTaken(customHash);
     if (isHashTaken) {
       this.setState({
         isSubmitEnabled: false,
@@ -164,13 +180,21 @@ class App extends Component {
     });
   }
 
-	async onSubmit(e) {
+	async onSubmit(e: React.FormEvent) {
 		e.preventDefault();
 		if (this.state.fullURL === '') {
 			this.setState({ message: 'yo! please enter a full url in the box' });
 			return;
 		}
 
+    this.setState({showMetamaskDialog: true});
+  }
+
+  dialogShouldClose() {
+    this.setState({showMetamaskDialog: false});
+  }
+
+  async onModalAcceptButtonClicked() {
 		// ensure web3 is hooked up
     try {
 		  await this.initWeb3();
@@ -188,17 +212,8 @@ class App extends Component {
       }
     }
 
-    this.setState({showMetamaskDialog: true});
-  }
-
-  dialogShouldClose() {
-    this.setState({showMetamaskDialog: false});
-  }
-
-  async onModalAcceptButtonClicked() {
-
-    var hashedURL = this.state.customHash;
-    if (hashedURL === '') {
+    let hashedURL = this.state.customHash;
+    if (hashedURL === '' || hashedURL === null) {
       hashedURL = await this.hashFullURL(this.state.fullURL);
       if (hashedURL === null) {
         return;
@@ -229,15 +244,15 @@ class App extends Component {
 		});
 	}
 
-	async getWeb3Components(permissions) {
+	async getWeb3Components(permissions: string) {
     try {
       // Get network provider and web3 instance.
 			const web3 = (permissions === Permissions.READ_ONLY)
         ? await getWeb3ReadOnlyAsync(MODE)
-        : await getWeb3Async();
+        : await getWeb3Async(MODE);
 
       // Use web3 to get the user's accounts.
-      var accounts = null;
+      let accounts = null;
 			if (permissions === Permissions.READ_WRITE) {
 				accounts = await web3.eth.getAccounts();
 			}
@@ -246,7 +261,7 @@ class App extends Component {
       const Contract = truffleContract(PermaURLStorageContract);
       Contract.setProvider(web3.currentProvider);
 
-			var instance = null;
+			let instance = null;
 			if (MODE === Mode.MAINNET) {
 				instance = await Contract.at(ContractAddress.MAINNET_ADDRESS);
 			} else {
@@ -262,10 +277,10 @@ class App extends Component {
     }
 	}
 
-	async hashFullURL(fullURL) {
+	async hashFullURL(fullURL: string) {
 		const bigHash = await this.sha256(fullURL);
 
-		var totalAttempts = 0; // try 10 times and otherwise declare bankruptcy!
+		let totalAttempts = 0; // try 10 times and otherwise declare bankruptcy!
 		while (totalAttempts < 10) {
 
 			const hashedURL = bigHash.substring(0, 3 + totalAttempts);
@@ -282,9 +297,9 @@ class App extends Component {
 	}
 
 	// credit: https://gist.github.com/chrisveness/e5a07769d06ed02a2587df16742d3fdd
-	async sha256(message) {
+	async sha256(message: string) {
 		// encode as UTF-8
-    const msgUint8 = new TextEncoder('utf-8').encode(message + Date.now());
+    const msgUint8 = (new TextEncoder()).encode(message + Date.now());
 		// hash the message
     const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
 		// convert hash to byte array
@@ -294,7 +309,7 @@ class App extends Component {
     return hashHex;
 }
 
-	async saveToEthereum(hashedURL) {
+	async saveToEthereum(hashedURL: string) {
 
 		// set loading indicator
 		this.setState({
