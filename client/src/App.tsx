@@ -335,6 +335,7 @@ class App extends Component {
 
 		this.setState({
       isSpinnerNeeded: false,
+      linkPreview: '',
 			message:
 				<a className="App-link" href={getHashedURL(hashedURL)}>
 				{getHashedURL(hashedURL)}

@@ -2,13 +2,23 @@ import React, { Component } from "react";
 
 import "./ModalDialog.css"
 
+interface ModalDialogState {
+  isVisible: boolean
+}
+
+interface ModalDialogProps {
+  isVisible: boolean;
+  onAcceptButtonClicked(): void;
+  dialogShouldClose(): void;
+}
+
 // inspiration from: https://github.com/marcio/react-skylight
-class ModalDialog extends Component {
+class ModalDialog extends Component<ModalDialogProps, ModalDialogState> {
   state = {
     isVisible: this.props.isVisible
   };
 
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps(nextProps: ModalDialogProps) {
     if (nextProps.isVisible !== this.props.isVisible) {
       this.setState({isVisible: nextProps.isVisible});
     }
@@ -42,20 +52,20 @@ class ModalDialog extends Component {
     );
   }
 
-  onOverlayClicked(e) {
+  onOverlayClicked(e: React.SyntheticEvent) {
     this.closeDialog(e);
   }
 
-  onCancelButtonClicked(e) {
+  onCancelButtonClicked(e: React.SyntheticEvent) {
     this.closeDialog(e);
   }
 
-  onAcceptButtonClicked(e) {
+  onAcceptButtonClicked(e: React.SyntheticEvent) {
     this.closeDialog(e);
     this.props.onAcceptButtonClicked();
   }
 
-  closeDialog(e) {
+  closeDialog(e: React.SyntheticEvent) {
     e.preventDefault();
     this.props.dialogShouldClose();
   }
