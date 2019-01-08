@@ -1,14 +1,14 @@
 import Web3 from "web3";
 import HDWalletProvider from "truffle-hdwallet-provider";
-import { Mode } from "./mode";
+import { Mode, ModeInterface } from "./mode";
 import { MissingWeb3Error } from "./errors";
 
-export const getWeb3 = () =>
+export const getWeb3 = (mode: string) =>
   new Promise((resolve, reject) => {
     // Wait for loading completion to avoid race conditions with web3 injection timing.
     window.addEventListener("load", async () => {
 			try {
-				const web3 = await getWeb3Async({accounts: true});
+				const web3 = await getWeb3Async(mode);
 				resolve(web3);
 			} catch (error) {
 				reject(error);
@@ -16,7 +16,7 @@ export const getWeb3 = () =>
    });
   });
 
-export const getWeb3ReadOnlyAsync = async(mode) => {
+export const getWeb3ReadOnlyAsync = async(mode: string) => {
     // just some rando mnemonic. It has no money in it, and is used
     // for making read-only queries to infura/ethereum.
     const mnemonic = "truth project dilemma ramp hint dream custom produce country skate search view";
@@ -28,22 +28,22 @@ export const getWeb3ReadOnlyAsync = async(mode) => {
     return new Web3(provider);
 }
 
-export const getWeb3Async = async (mode) => {
+export const getWeb3Async = async (mode: string) => {
 
   // Modern dapp browsers...
-	if (window.ethereum) {
-		const web3 = new Web3(window.ethereum);
+	if ((window as any).ethereum) {
+		const web3 = new Web3((window as any).ethereum);
 
     // Request account access if needed
-    await window.ethereum.enable();
+    await (window as any).ethereum.enable();
 
 		// Accounts now exposed
 		return web3;
 	}
 	// Legacy dapp browsers...
-	else if (window.web3) {
+	else if ((window as any).web3) {
 		// Use Mist/MetaMask's provider.
-		const web3 = window.web3;
+		const web3 = (window as any).web3;
 		return web3;
 	}
 	// Fallback to localhost; use dev console port by default...
