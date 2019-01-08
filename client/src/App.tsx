@@ -33,7 +33,6 @@ interface AppState {
 		fullURL: string,
     isSpinnerNeeded: boolean,
     isSubmitEnabled: boolean,
-    linkPreview: string,
 		message: string,
     showMetamaskDialog: boolean,
 		storageValue: number,
@@ -50,7 +49,6 @@ class App extends Component {
 		fullURL: '',
     isSpinnerNeeded: false,
     isSubmitEnabled: true,
-    linkPreview: '',
 		message: '',
     showMetamaskDialog: false,
 		storageValue: 0,
@@ -128,9 +126,7 @@ class App extends Component {
             <br />
 						<input disabled={this.isSubmitDisabled()} className="fullURLSubmit" type="submit" value="submit" />
 					</form>
-          <p className="LinkPreview-container"> {this.state.linkPreview} </p>
 					<p className="Message-container"> {this.state.message} </p>
-
           <div> {spinner} </div>
         </header>
       </div>
@@ -138,7 +134,7 @@ class App extends Component {
 	}
 
   isSubmitDisabled() {
-    return this.state.isSpinnerNeeded;
+    return this.state.isSpinnerNeeded || !this.state.isSubmitEnabled;
   }
 
 	onFullURLChange(e: React.FormEvent<HTMLInputElement>) {
@@ -155,6 +151,8 @@ class App extends Component {
     const customHash = e.currentTarget.value;
     const timeoutID = setTimeout(async () => this.onHashInputChangeImpl(customHash), 200);
     this.setState({
+      isSpinnerNeeded: true,
+      message: "checking if /" + customHash + " is available",
       customHashTimeoutID: timeoutID
     });
     return;
@@ -169,7 +167,8 @@ class App extends Component {
     if (isHashTaken) {
       this.setState({
         isSubmitEnabled: false,
-        message: customHash + " has already been taken. Please try another one"
+        isSpinnerNeeded: false,
+        message: customHash + " has already been taken. Please try another one",
       });
       return;
     }
@@ -177,7 +176,14 @@ class App extends Component {
     // if not taken, then show preview
     this.setState({
       isSubmitEnabled: true,
-      linkPreview: "your shortened url will be: " + getHashedURL(customHash)
+      isSpinnerNeeded: false,
+      message:
+        <p>
+          your shortened url will be:
+          <br />
+          {getHashedURL(customHash)}
+          <br />
+        </p>
     });
   }
 
@@ -349,7 +355,6 @@ class App extends Component {
       </p>;
 		this.setState({
       isSpinnerNeeded: false,
-      linkPreview: '',
 			message: message
 		});
   }
