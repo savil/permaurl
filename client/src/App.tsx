@@ -69,7 +69,6 @@ class App extends Component {
 
     const hash = locationHash.substring(2);
     const fullURL = await this.getFullURLFromHash(hash);
-    // TODO savil confirm this .href works
     window.location.href = getURLForRedirect(fullURL);
 	}
 
