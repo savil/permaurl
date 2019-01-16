@@ -44,8 +44,8 @@ interface AppState {
 interface AppProps {
   fullURL: string,
   isMetamaskDialogVisible: boolean,
-  onModalAcceptButtonClicked: () => void,
-  onDialogShouldClose: () => void,
+  onMetamaskDialogAcceptClicked: () => void,
+  onMetamaskDialogShouldClose: () => void,
   onFullURLChange: (newFullURL: string) => void,
   showMetamaskDialog: () => void,
 }
@@ -108,8 +108,8 @@ class App extends Component<AppProps, AppState> {
         <header className="App-header">
           <PermaURLModalDialog
             isVisible={this.props.isMetamaskDialogVisible}
-            onAcceptButtonClicked={this.onModalAcceptButtonClicked.bind(this)}
-            onDialogShouldClose={this.props.onDialogShouldClose}
+            onAcceptButtonClicked={this.onMetamaskDialogAcceptClicked.bind(this)}
+            onDialogShouldClose={this.props.onMetamaskDialogShouldClose}
           />
 					<form onSubmit={this.onSubmit.bind(this)}>
 						<input
@@ -201,8 +201,8 @@ class App extends Component<AppProps, AppState> {
     this.props.showMetamaskDialog();
   }
 
-  async onModalAcceptButtonClicked() {
-    this.props.onModalAcceptButtonClicked();
+  async onMetamaskDialogAcceptClicked() {
+    this.props.onMetamaskDialogAcceptClicked();
 
 		// ensure web3 is hooked up
     try {
@@ -388,8 +388,8 @@ class App extends Component<AppProps, AppState> {
 function mapDispatchToProps(dispatch: Dispatch<actions.PermaURLAction>) {
   return {
     onFullURLChange: (newFullURL: string) => dispatch(actions.fullURLChanged(newFullURL)),
-    onDialogShouldClose: () => dispatch(actions.modalCancelClicked()),
-    onModalAcceptButtonClicked: () => dispatch(actions.modalAcceptClicked()),
+    onMetamaskDialogShouldClose: () => dispatch(actions.modalCancelClicked()),
+    onMetamaskDialogAcceptClicked: () => dispatch(actions.modalAcceptClicked()),
     showMetamaskDialog: () => dispatch(actions.showMetamaskDialog()),
   };
 }
