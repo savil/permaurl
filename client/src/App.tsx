@@ -1,14 +1,18 @@
 import React, { Component } from "react";
+import { connect } from 'react-redux';
+import { combineReducers, createStore, Dispatch } from 'redux';
+import truffleContract from "truffle-contract";
 
-import PermaURLStorageContract from "./contracts/PermaURLStorage.json";
+import * as actions from "./actions/"
+import { StoreState } from "./types/"
+import { copyToClipboard } from "./utils/clipboard";
+import { MissingWeb3Error } from "./utils/errors";
 import { getWeb3Async, getWeb3ReadOnlyAsync } from "./utils/getWeb3";
 import { getHashedURL, getURLForRedirect } from "./utils/Host";
-import ModalDialog from "./ModalDialog"
 import { Mode } from "./utils/mode";
-import { MissingWeb3Error } from "./utils/errors";
+import PermaURLModalDialog from "./containers/PermaURLModalDialog";
+import PermaURLStorageContract from "./contracts/PermaURLStorage.json";
 import Spinner from "./external/react-spinner/react-spinner";
-import truffleContract from "truffle-contract";
-import { copyToClipboard } from "./utils/clipboard";
 
 import "./App.css";
 
@@ -26,31 +30,35 @@ const ContractAddress = {
 };
 
 interface AppState {
-		accounts: any,
-		contract: any,
-    customHash: string | null,
-    customHashTimeoutID: number | undefined,
-		fullURL: string,
-    isSpinnerNeeded: boolean,
-    isSubmitEnabled: boolean,
-		message: string,
-    showMetamaskDialog: boolean,
-		storageValue: number,
-		web3: null | any
-
+  accounts: any,
+  contract: any,
+  customHash: string | null,
+  customHashTimeoutID: ReturnType<typeof setTimeout> | undefined,
+  isSpinnerNeeded: boolean,
+  isSubmitEnabled: boolean,
+  message: string,
+  storageValue: number,
+  web3: null | any
 }
 
-class App extends Component {
+interface AppProps {
+  fullURL: string,
+  isMetamaskDialogVisible: boolean,
+  onModalAcceptButtonClicked: () => void,
+  onDialogShouldClose: () => void,
+  onFullURLChange: (newFullURL: string) => void,
+  showMetamaskDialog: () => void,
+}
+
+class App extends Component<AppProps, AppState> {
   state: AppState = {
 		accounts: null,
 		contract: null,
     customHash: '',
     customHashTimeoutID: undefined,
-		fullURL: '',
     isSpinnerNeeded: false,
     isSubmitEnabled: true,
 		message: '',
-    showMetamaskDialog: false,
 		storageValue: 0,
 		web3: null
 	};
@@ -98,18 +106,11 @@ class App extends Component {
     return (
       <div className="App">
         <header className="App-header">
-          <ModalDialog
-            isVisible={this.state.showMetamaskDialog}
+          <PermaURLModalDialog
+            isVisible={this.props.isMetamaskDialogVisible}
             onAcceptButtonClicked={this.onModalAcceptButtonClicked.bind(this)}
-            dialogShouldClose={this.dialogShouldClose.bind(this)}
-          >
-            Next, Metamask will open a dialog.
-            <br />
-            <br />
-            You will be asked to confirm the transaction for saving your URL to ethereum's blockchain.
-            <br />
-            <br />
-          </ModalDialog>
+            onDialogShouldClose={this.props.onDialogShouldClose}
+          />
 					<form onSubmit={this.onSubmit.bind(this)}>
 						<input
 							className="fullURLInput"
@@ -139,7 +140,7 @@ class App extends Component {
 
 	onFullURLChange(e: React.FormEvent<HTMLInputElement>) {
 		e.preventDefault();
-		this.setState({ fullURL: e.currentTarget.value });
+    this.props.onFullURLChange(e.currentTarget.value);
 	}
 
   async onHashInputChange(e: React.FormEvent<HTMLInputElement>) {
@@ -159,7 +160,7 @@ class App extends Component {
   }
 
   async onHashInputChangeImpl(customHash: string) {
-    this.setState({ customHash: customHash, customHashTimeoutID: null });
+    this.setState({ customHash: customHash, customHashTimeoutID: undefined });
 
     // check if hash is taken
     // if taken, show message and disable submit
@@ -177,43 +178,47 @@ class App extends Component {
     this.setState({
       isSubmitEnabled: true,
       isSpinnerNeeded: false,
-      message:
+      message: 'your shortened url will be: ' + getHashedURL(customHash)
+        // TODO savil fixup
+        /*
         <p>
           your shortened url will be:
           <br />
           {getHashedURL(customHash)}
           <br />
         </p>
+        */
     });
   }
 
 	async onSubmit(e: React.FormEvent) {
 		e.preventDefault();
-		if (this.state.fullURL === '') {
+		if (this.props.fullURL === '') {
 			this.setState({ message: 'yo! please enter a full url in the box' });
 			return;
 		}
 
-    this.setState({showMetamaskDialog: true});
-  }
-
-  dialogShouldClose() {
-    this.setState({showMetamaskDialog: false});
+    this.props.showMetamaskDialog();
   }
 
   async onModalAcceptButtonClicked() {
+    this.props.onModalAcceptButtonClicked();
+
 		// ensure web3 is hooked up
     try {
 		  await this.initWeb3();
     } catch (error) {
       if (error instanceof MissingWeb3Error) {
         this.setState({
-          message:
+          message: 'Alas, looks like you will need to install Metamask. This lets us save your URL securely.'
+            // TODO savil. fix up
+            /*
             <p>
               Alas, looks like you will need to
               install <a href="https://metamask.io" rel="noopener noreferrer" target="_blank">Metamask</a>.
               This lets us save your URL securely.
             </p>
+            */
         });
         return;
       }
@@ -221,7 +226,7 @@ class App extends Component {
 
     let hashedURL = this.state.customHash;
     if (hashedURL === '' || hashedURL === null) {
-      hashedURL = await this.hashFullURL(this.state.fullURL);
+      hashedURL = await this.hashFullURL(this.props.fullURL);
       if (hashedURL === null) {
         return;
       }
@@ -328,7 +333,7 @@ class App extends Component {
 		try {
 			await this.state.contract.set(
 				this.state.web3.utils.asciiToHex(hashedURL),
-				this.state.web3.utils.asciiToHex(this.state.fullURL),
+				this.state.web3.utils.asciiToHex(this.props.fullURL),
 				{ from: this.state.accounts[0] }
 			);
 		} catch (e) {
@@ -341,6 +346,7 @@ class App extends Component {
 		}
 
     const resultHashedURL = getHashedURL(hashedURL);
+    // TODO savil. fixup.
     const message =
       <p>
 				{resultHashedURL}
@@ -355,7 +361,7 @@ class App extends Component {
       </p>;
 		this.setState({
       isSpinnerNeeded: false,
-			message: message
+			message: resultHashedURL
 		});
   }
 
@@ -378,4 +384,21 @@ class App extends Component {
 	}
 }
 
-export default App;
+// dispatch
+function mapDispatchToProps(dispatch: Dispatch<actions.PermaURLAction>) {
+  return {
+    onFullURLChange: (newFullURL: string) => dispatch(actions.fullURLChanged(newFullURL)),
+    onDialogShouldClose: () => dispatch(actions.modalCancelClicked()),
+    onModalAcceptButtonClicked: () => dispatch(actions.modalAcceptClicked()),
+    showMetamaskDialog: () => dispatch(actions.showMetamaskDialog()),
+  };
+}
+
+function mapStateToProps(state: StoreState) {
+  return {
+    fullURL: state.fullURL,
+    isMetamaskDialogVisible: state.isMetamaskDialogVisible,
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
