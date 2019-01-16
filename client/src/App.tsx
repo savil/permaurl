@@ -4,7 +4,7 @@ import { combineReducers, createStore, Dispatch } from 'redux';
 import truffleContract from "truffle-contract";
 
 import * as actions from "./actions/"
-import { StoreState } from "./types/"
+import { Web3State, StoreState } from "./types/"
 import { copyToClipboard } from "./utils/clipboard";
 import { MissingWeb3Error } from "./utils/errors";
 import { getWeb3Async, getWeb3ReadOnlyAsync } from "./utils/getWeb3";
@@ -30,15 +30,12 @@ const ContractAddress = {
 };
 
 interface AppState {
-  accounts: any,
-  contract: any,
   customHash: string | null,
   customHashTimeoutID: ReturnType<typeof setTimeout> | undefined,
   isSpinnerNeeded: boolean,
   isSubmitEnabled: boolean,
   message: string,
   storageValue: number,
-  web3: null | any
 }
 
 interface AppProps {
@@ -48,19 +45,18 @@ interface AppProps {
   onMetamaskDialogShouldClose: () => void,
   onFullURLChange: (newFullURL: string) => void,
   showMetamaskDialog: () => void,
+  updateWeb3State: (newWeb3State: Web3State) => void,
+  web3State: Web3State,
 }
 
 class App extends Component<AppProps, AppState> {
   state: AppState = {
-		accounts: null,
-		contract: null,
     customHash: '',
     customHashTimeoutID: undefined,
     isSpinnerNeeded: false,
     isSubmitEnabled: true,
 		message: '',
 		storageValue: 0,
-		web3: null
 	};
 
 	async componentWillMount() {
@@ -237,7 +233,7 @@ class App extends Component<AppProps, AppState> {
 	}
 
 	async initWeb3() {
-		if (this.state.web3 !== null) {
+		if (this.props.web3State.web3 !== null) {
 			// already init'd
 			return;
 		}
@@ -249,7 +245,7 @@ class App extends Component<AppProps, AppState> {
 
 		// Set web3, accounts, and contract to the state, and then proceed with an
 		// example of interacting with the contract's methods.
-		this.setState({
+    this.props.updateWeb3State({
 			web3: components.web3,
 			accounts: components.accounts,
 			contract: components.contract
@@ -296,7 +292,9 @@ class App extends Component<AppProps, AppState> {
 		while (totalAttempts < 10) {
 
 			const hashedURL = bigHash.substring(0, 3 + totalAttempts);
-			const prevSavedURL = await this.state.contract.get.call(this.state.web3.utils.fromAscii(hashedURL));
+			const prevSavedURL = await this.props.web3State.contract.get.call(
+        this.props.web3State.web3.utils.fromAscii(hashedURL)
+      );
 			if (prevSavedURL === null) {
 				return hashedURL;
 			}
@@ -331,10 +329,10 @@ class App extends Component<AppProps, AppState> {
 
 		// send hash => original to ethereum
 		try {
-			await this.state.contract.set(
-				this.state.web3.utils.asciiToHex(hashedURL),
-				this.state.web3.utils.asciiToHex(this.props.fullURL),
-				{ from: this.state.accounts[0] }
+			await this.props.web3State.contract.set(
+				this.props.web3State.web3.utils.asciiToHex(hashedURL),
+				this.props.web3State.web3.utils.asciiToHex(this.props.fullURL),
+				{ from: this.props.web3State.accounts[0] }
 			);
 		} catch (e) {
       console.error(e);
@@ -391,6 +389,7 @@ function mapDispatchToProps(dispatch: Dispatch<actions.PermaURLAction>) {
     onMetamaskDialogShouldClose: () => dispatch(actions.modalCancelClicked()),
     onMetamaskDialogAcceptClicked: () => dispatch(actions.modalAcceptClicked()),
     showMetamaskDialog: () => dispatch(actions.showMetamaskDialog()),
+    updateWeb3State: (newWeb3State: Web3State) => dispatch(actions.updateWeb3State(newWeb3State)),
   };
 }
 
@@ -398,6 +397,7 @@ function mapStateToProps(state: StoreState) {
   return {
     fullURL: state.fullURL,
     isMetamaskDialogVisible: state.isMetamaskDialogVisible,
+    web3State: state.web3State,
   }
 }
 

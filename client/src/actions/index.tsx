@@ -1,4 +1,5 @@
 import * as constants from "../constants";
+import { Web3State } from "../types";
 
 export interface FullURLChangedAction {
   type: string,
@@ -23,8 +24,17 @@ export function showMetamaskDialog(): ShowMetamaskDialog {
   return { type: constants.SHOW_METAMASK_DIALOG };
 }
 
+export interface UpdateWeb3StateAction {
+  type: string,
+  web3State: Web3State,
+}
+export function updateWeb3State(newWeb3State: Web3State): UpdateWeb3StateAction {
+  return { type: constants.UPDATE_WEB3_STATE, web3State: newWeb3State };
+}
+
 export type PermaURLAction =
   FullURLChangedAction |
   ModalAcceptClicked |
   ModalCancelClicked |
-  ShowMetamaskDialog;
+  ShowMetamaskDialog |
+  UpdateWeb3StateAction;
