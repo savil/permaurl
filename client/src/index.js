@@ -4,9 +4,9 @@ import { Provider } from 'react-redux';
 import { createStore } from 'redux';
 
 import App from './App';
+import { permaURLAppReducers } from "./reducers/";
 import * as serviceWorker from './serviceWorker';
 import { initialState } from "./types/index";
-import { permaURLAppReducers } from "./reducers/index";
 
 import './index.css';
 

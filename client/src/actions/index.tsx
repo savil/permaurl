@@ -1,6 +1,10 @@
 import * as constants from "../constants";
 import { MessageKind, Web3State } from "../types";
 
+// Style note:
+// since all actions have the type attribute, it is specified on top
+// then the rest of the attributes are in alphabetical order
+
 export interface FullURLChangedAction {
   type: string,
   text: string,
@@ -9,17 +13,23 @@ export function fullURLChanged(newFullURL: string): FullURLChangedAction {
   return { type: constants.FULL_URL_CHANGED, text: newFullURL };
 }
 
-export interface ModalAcceptClicked { type: string }
+export interface ModalAcceptClicked {
+  type: string
+}
 export function modalAcceptClicked(): ModalAcceptClicked {
   return { type: constants.MODAL_ACCEPT_PRESSED };
 }
 
-export interface ModalCancelClicked { type: string }
+export interface ModalCancelClicked {
+  type: string
+}
 export function modalCancelClicked(): ModalCancelClicked {
   return { type: constants.MODAL_CANCEL_PRESSED };
 }
 
-export interface ShowMetamaskDialog { type: string }
+export interface ShowMetamaskDialog {
+  type: string
+}
 export function showMetamaskDialog(): ShowMetamaskDialog {
   return { type: constants.SHOW_METAMASK_DIALOG };
 }
@@ -93,14 +103,14 @@ export function onCustomHashCheckIsResolved(
 export interface OnSendingHashToEthereumAction {
   type: string,
   payload: {
-    messageKind: MessageKind,
     isSpinnerNeeded: boolean,
+    messageKind: MessageKind,
   }
 }
 export function onSendingHashToEthereum(
   payload: {
-    messageKind: MessageKind,
     isSpinnerNeeded: boolean,
+    messageKind: MessageKind,
   }
 ): OnSendingHashToEthereumAction {
   return {

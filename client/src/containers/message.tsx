@@ -4,17 +4,16 @@ import { Dispatch } from 'redux';
 
 import * as actions from "../actions/";
 import { copyToClipboard } from "../utils/clipboard";
-import { MessageKind, StoreState } from "../types";
 import { getHashedURL } from "../utils/Host";
+import { MessageKind, StoreState } from "../types";
 
 interface MessageProps {
   customHash: string,
-  savedHash: string | null,
   messageKind: MessageKind,
+  savedHash: string | null,
 }
 
 interface MessageState {
-
 }
 
 class Message extends Component<MessageProps, MessageState> {
@@ -72,10 +71,13 @@ class Message extends Component<MessageProps, MessageState> {
             {')'}
           </p>
         );
+
       case MessageKind.FAILED_TO_GENERATE_HASH:
         return "Failed to generate a suitable hash! Bummer.";
+
       case MessageKind.ERROR_SENDING_TO_ETHEREUM:
         return "There was an error saving on ethereum. Sad puppy :-(";
+
       case MessageKind.NONE:
       default:
         return null;

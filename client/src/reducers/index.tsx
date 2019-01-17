@@ -5,20 +5,19 @@ import * as constants from "../constants";
 import {
   FormState,
   initFormState,
+  initialState,
+  initWeb3State,
   MessageKind,
   StoreState,
-  initialState,
   Web3State,
-  initWeb3State,
-} from "../types/index"
+} from "../types/";
 
-function modalDialogReducer(
+function isMetamaskDialogVisible(
   state: boolean | undefined = false,
   action: actions.PermaURLAction,
 ): boolean {
   switch (action.type) {
     case constants.MODAL_ACCEPT_PRESSED:
-      return false;
     case constants.MODAL_CANCEL_PRESSED:
       return false;
     case constants.SHOW_METAMASK_DIALOG:
@@ -28,7 +27,7 @@ function modalDialogReducer(
   }
 }
 
-function updateWeb3StateReducer(
+function web3State(
   state: Web3State | undefined = initWeb3State,
   action: actions.PermaURLAction,
 ): Web3State {
@@ -40,13 +39,11 @@ function updateWeb3StateReducer(
   }
 }
 
-function updateMessageReducer(
+function messageKind(
   state: MessageKind | undefined = MessageKind.NONE,
   action: actions.PermaURLAction,
 ): MessageKind {
   switch (action.type) {
-    case constants.UPDATE_MESSAGE:
-      return (action as actions.UpdateMessageAction).kind;
     case constants.ON_HASH_INPUT_CHANGE:
       return (action as actions.OnHashInputChangeAction).payload.messageKind;
     case constants.ON_CUSTOM_HASH_CHECK_IS_RESOLVED:
@@ -55,6 +52,8 @@ function updateMessageReducer(
       return (action as actions.OnSavedHashToEthereumAction).payload.messageKind;
     case constants.ON_SENDING_HASH_TO_ETHEREUM:
       return (action as actions.OnSendingHashToEthereumAction).payload.messageKind;
+    case constants.UPDATE_MESSAGE:
+      return (action as actions.UpdateMessageAction).kind;
     default:
       return state;
   }
@@ -71,19 +70,20 @@ function formState(
         fullURL: (action as actions.FullURLChangedAction).text,
       };
     case constants.ON_HASH_INPUT_CHANGE:
+      let action2 = action as actions.OnHashInputChangeAction;
       return {
         ...state,
-        customHashTimeoutID: (action as actions.OnHashInputChangeAction).payload.customHashTimeoutID,
-        customHash: (action as actions.OnHashInputChangeAction).payload.customHash,
-        isSubmitEnabled: (action as actions.OnHashInputChangeAction).payload.isSubmitEnabled,
+        customHashTimeoutID: action2.payload.customHashTimeoutID,
+        customHash: action2.payload.customHash,
+        isSubmitEnabled: action2.payload.isSubmitEnabled,
       };
     case constants.ON_CUSTOM_HASH_CHECK_IS_RESOLVED:
-      // TODO savil. neaten this.
+      let actn = action as actions.OnCustomHashCheckIsResolvedAction;
       return {
         ...state,
-        customHash: (action as actions.OnCustomHashCheckIsResolvedAction).payload.customHash,
-        customHashTimeoutID: (action as actions.OnCustomHashCheckIsResolvedAction).payload.customHashTimeoutID,
-        isSubmitEnabled: (action as actions.OnCustomHashCheckIsResolvedAction).payload.isSubmitEnabled,
+        customHash: actn.payload.customHash,
+        customHashTimeoutID: actn.payload.customHashTimeoutID,
+        isSubmitEnabled: actn.payload.isSubmitEnabled,
       };
     default:
       return state;
@@ -122,9 +122,9 @@ function isSpinnerNeeded(
 
 export const permaURLAppReducers = combineReducers({
   formState: formState,
-  isMetamaskDialogVisible: modalDialogReducer,
+  isMetamaskDialogVisible: isMetamaskDialogVisible,
   isSpinnerNeeded: isSpinnerNeeded,
-  messageKind: updateMessageReducer,
+  messageKind: messageKind,
   savedHash: savedHash,
-  web3State: updateWeb3StateReducer,
+  web3State: web3State,
 });

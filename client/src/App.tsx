@@ -1,16 +1,16 @@
 import React, { Component } from "react";
 import { connect } from 'react-redux';
-import { combineReducers, createStore, Dispatch } from 'redux';
+import { Dispatch } from 'redux';
 
 import * as actions from "./actions/";
-import { FormState, MessageKind, StoreState, Web3State } from "./types/";
 import { MissingWeb3Error } from "./utils/errors";
-import { getHashedURL, getURLForRedirect } from "./utils/Host";
+import { getURLForRedirect } from "./utils/Host";
 import Message from "./containers/message";
 import PermaURLForm from "./containers/PermaURLForm";
 import PermaURLModalDialog from "./containers/PermaURLModalDialog";
+import { getFullURLFromHash, getWeb3Components, Permissions } from "./utils/PermaURLUtil";
 import Spinner from "./external/react-spinner/react-spinner";
-import { Permissions, getFullURLFromHash, getWeb3Components } from "./utils/PermaURLUtil";
+import { FormState, MessageKind, StoreState, Web3State } from "./types/";
 
 import "./App.css";
 
@@ -20,10 +20,17 @@ interface AppProps {
   isSpinnerNeeded: boolean,
   onMetamaskDialogAcceptClicked: () => void,
   onMetamaskDialogShouldClose: () => void,
-  onSendingHashToEthereum:
-    (payload: { messageKind: MessageKind, isSpinnerNeeded: boolean}) => void,
   onSavedHashToEthereum:
-    (payload: { messageKind: MessageKind, isSpinnerNeeded: boolean, savedHash: string}) => void,
+    (payload: {
+      messageKind: MessageKind,
+      isSpinnerNeeded: boolean,
+      savedHash: string,
+    }) => void,
+  onSendingHashToEthereum:
+    (payload: {
+      messageKind: MessageKind,
+      isSpinnerNeeded: boolean,
+    }) => void,
   updateWeb3State: (newWeb3State: Web3State) => void,
   updateMessage: (newMessage: MessageKind) => void,
   web3State: Web3State,
@@ -54,11 +61,6 @@ class App extends Component<AppProps, AppState> {
 
 
   render() {
-    let spinner = null;
-    if (this.props.isSpinnerNeeded) {
-      spinner = <Spinner />;
-    }
-
     return (
       <div className="App">
         <header className="App-header">
@@ -69,7 +71,7 @@ class App extends Component<AppProps, AppState> {
           />
           <PermaURLForm />
           <Message />
-          <div> {spinner} </div>
+          <div> {this.props.isSpinnerNeeded ? <Spinner /> : null} </div>
         </header>
       </div>
     );
@@ -122,7 +124,6 @@ class App extends Component<AppProps, AppState> {
 		});
 	}
 
-
 	async hashFullURL(fullURL: string): Promise<string | null> {
 		const bigHash = await this.sha256(fullURL);
 
@@ -145,7 +146,7 @@ class App extends Component<AppProps, AppState> {
 	}
 
 	// credit: https://gist.github.com/chrisveness/e5a07769d06ed02a2587df16742d3fdd
-	async sha256(message: string) {
+	async sha256(message: string): Promise<string> {
 		// encode as UTF-8
     const msgUint8 = (new TextEncoder()).encode(message + Date.now());
 		// hash the message
@@ -157,7 +158,7 @@ class App extends Component<AppProps, AppState> {
     return hashHex;
 }
 
-	async saveToEthereum(hashedURL: string) {
+	async saveToEthereum(hashedURL: string): Promise<void> {
 		// set loading indicator
     this.props.onSendingHashToEthereum({
       messageKind: MessageKind.SENDING_TO_ETHEREUM,
@@ -188,7 +189,6 @@ class App extends Component<AppProps, AppState> {
   }
 }
 
-// dispatch
 function mapDispatchToProps(dispatch: Dispatch<actions.PermaURLAction>) {
   return {
     onMetamaskDialogShouldClose: () => dispatch(actions.modalCancelClicked()),
@@ -215,5 +215,3 @@ function mapStateToProps(state: StoreState) {
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);
-
-// utilities //////

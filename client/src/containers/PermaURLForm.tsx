@@ -3,8 +3,8 @@ import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
 
 import * as actions from "../actions/";
-import { FormState, MessageKind, StoreState } from "../types";
 import { getFullURLFromHash } from "../utils/PermaURLUtil";
+import { FormState, MessageKind, StoreState } from "../types";
 
 interface PermaURLFormProps {
   formState: FormState,
@@ -49,7 +49,12 @@ class PermaURLForm extends Component<PermaURLFormProps, PermaURLFormState> {
           type="text"
         />
         <br />
-        <input disabled={!this.props.formState.isSubmitEnabled} className="fullURLSubmit" type="submit" value="submit" />
+        <input
+          disabled={!this.props.formState.isSubmitEnabled}
+          className="fullURLSubmit"
+          type="submit"
+          value="submit"
+        />
       </form>
     );
   }
@@ -76,7 +81,10 @@ class PermaURLForm extends Component<PermaURLFormProps, PermaURLFormState> {
     }
 
     const customHash = e.currentTarget.value;
-    const timeoutID = setTimeout(async () => this.onHashInputChangeImpl(customHash), 200);
+    const timeoutID = setTimeout(
+      async () => this.onHashInputChangeImpl(customHash),
+      200, // milliseconds
+    );
     this.props.onHashInputChange({
       customHash: customHash,
       customHashTimeoutID: timeoutID,
@@ -125,10 +133,18 @@ function mapStateToProps(state: StoreState) {
 
 function mapDispatchToProps(dispatch: Dispatch<actions.PermaURLAction>) {
   return {
-    showMetamaskDialog: () => dispatch(actions.showMetamaskDialog()),
-    updateMessage: (newMessage: MessageKind) => dispatch(actions.updateMessage(newMessage)),
 
-    onFullURLChange: (newFullURL: string) => dispatch(actions.fullURLChanged(newFullURL)),
+    onCustomHashCheckIsResolved:
+      (payload: {
+        customHash: string,
+        customHashTimeoutID: ReturnType<typeof setTimeout> | undefined,
+        isSpinnerNeeded: boolean,
+        isSubmitEnabled: boolean,
+        messageKind: MessageKind,
+      }) => dispatch(actions.onCustomHashCheckIsResolved(payload)),
+
+    onFullURLChange:
+      (newFullURL: string) => dispatch(actions.fullURLChanged(newFullURL)),
 
     onHashInputChange:
       (payload: {
@@ -139,14 +155,9 @@ function mapDispatchToProps(dispatch: Dispatch<actions.PermaURLAction>) {
         messageKind: MessageKind,
       }) => dispatch(actions.onHashInputChange(payload)),
 
-    onCustomHashCheckIsResolved:
-      (payload: {
-        customHash: string,
-        customHashTimeoutID: ReturnType<typeof setTimeout> | undefined,
-        isSpinnerNeeded: boolean,
-        isSubmitEnabled: boolean,
-        messageKind: MessageKind,
-      }) => dispatch(actions.onCustomHashCheckIsResolved(payload)),
+    showMetamaskDialog: () => dispatch(actions.showMetamaskDialog()),
+    updateMessage:
+      (newMessage: MessageKind) => dispatch(actions.updateMessage(newMessage)),
   };
 }
 
