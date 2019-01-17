@@ -1,5 +1,5 @@
 import * as constants from "../constants";
-import { Web3State } from "../types";
+import { MessageKind, Web3State } from "../types";
 
 export interface FullURLChangedAction {
   type: string,
@@ -32,9 +32,112 @@ export function updateWeb3State(newWeb3State: Web3State): UpdateWeb3StateAction 
   return { type: constants.UPDATE_WEB3_STATE, web3State: newWeb3State };
 }
 
+export interface UpdateMessageAction {
+  type: string,
+  kind: MessageKind,
+}
+export function updateMessage(messageKind: MessageKind): UpdateMessageAction {
+  return { type: constants.UPDATE_MESSAGE, kind: messageKind };
+}
+
+export interface OnHashInputChangeAction {
+  type: string,
+  payload: {
+    customHash: string,
+    customHashTimeoutID: ReturnType<typeof setTimeout>
+    isSpinnerNeeded: boolean,
+    isSubmitEnabled: boolean,
+    messageKind: MessageKind,
+  }
+}
+export function onHashInputChange(
+  payload: {
+    customHash: string,
+    customHashTimeoutID: ReturnType<typeof setTimeout>
+    isSpinnerNeeded: boolean,
+    isSubmitEnabled: boolean,
+    messageKind: MessageKind,
+  }
+): OnHashInputChangeAction {
+  return {
+    type: constants.ON_HASH_INPUT_CHANGE,
+    payload: payload,
+  }
+}
+
+export interface OnCustomHashCheckIsResolvedAction {
+  type: string,
+  payload: {
+    customHash: string,
+    customHashTimeoutID: ReturnType<typeof setTimeout> | undefined,
+    isSpinnerNeeded: boolean,
+    isSubmitEnabled: boolean,
+    messageKind: MessageKind,
+  }
+}
+export function onCustomHashCheckIsResolved(
+  payload: {
+    customHash: string,
+    customHashTimeoutID: ReturnType<typeof setTimeout> | undefined,
+    isSpinnerNeeded: boolean,
+    isSubmitEnabled: boolean,
+    messageKind: MessageKind,
+  }
+): OnCustomHashCheckIsResolvedAction {
+  return {
+    type: constants.ON_CUSTOM_HASH_CHECK_IS_RESOLVED,
+    payload: payload,
+  }
+}
+
+export interface OnSendingHashToEthereumAction {
+  type: string,
+  payload: {
+    messageKind: MessageKind,
+    isSpinnerNeeded: boolean,
+  }
+}
+export function onSendingHashToEthereum(
+  payload: {
+    messageKind: MessageKind,
+    isSpinnerNeeded: boolean,
+  }
+): OnSendingHashToEthereumAction {
+  return {
+    type: constants.ON_SENDING_HASH_TO_ETHEREUM,
+    payload: payload,
+  }
+}
+
+export interface OnSavedHashToEthereumAction {
+  type: string,
+  payload: {
+    isSpinnerNeeded: boolean,
+    messageKind: MessageKind,
+    savedHash: string,
+  }
+}
+export function onSavedHashToEthereum(
+  payload: {
+    isSpinnerNeeded: boolean,
+    messageKind: MessageKind,
+    savedHash: string,
+  }
+): OnSavedHashToEthereumAction {
+  return {
+    type: constants.ON_SAVED_HASH_TO_ETHEREUM,
+    payload: payload
+  }
+}
+
 export type PermaURLAction =
   FullURLChangedAction |
   ModalAcceptClicked |
   ModalCancelClicked |
+  OnCustomHashCheckIsResolvedAction |
+  OnHashInputChangeAction |
+  OnSavedHashToEthereumAction |
+  OnSendingHashToEthereumAction |
   ShowMetamaskDialog |
+  UpdateMessageAction |
   UpdateWeb3StateAction;

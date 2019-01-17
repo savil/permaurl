@@ -1,63 +1,38 @@
 import React, { Component } from "react";
 import { connect } from 'react-redux';
 import { combineReducers, createStore, Dispatch } from 'redux';
-import truffleContract from "truffle-contract";
 
-import * as actions from "./actions/"
-import { Web3State, StoreState } from "./types/"
-import { copyToClipboard } from "./utils/clipboard";
+import * as actions from "./actions/";
+import { FormState, MessageKind, StoreState, Web3State } from "./types/";
 import { MissingWeb3Error } from "./utils/errors";
-import { getWeb3Async, getWeb3ReadOnlyAsync } from "./utils/getWeb3";
 import { getHashedURL, getURLForRedirect } from "./utils/Host";
-import { Mode } from "./utils/mode";
+import Message from "./containers/message";
+import PermaURLForm from "./containers/PermaURLForm";
 import PermaURLModalDialog from "./containers/PermaURLModalDialog";
-import PermaURLStorageContract from "./contracts/PermaURLStorage.json";
 import Spinner from "./external/react-spinner/react-spinner";
+import { Permissions, getFullURLFromHash, getWeb3Components } from "./utils/PermaURLUtil";
 
 import "./App.css";
 
-//const MODE = Mode.MAINNET;
-const MODE = Mode.ROPSTEN;
-
-const Permissions = {
-  READ_ONLY: "read_only",
-  READ_WRITE: "read_write"
-};
-
-const ContractAddress = {
-  MAINNET_ADDRESS: "0xf0625cF19647fe7689Bc7b0B8C54aFFb71d94cb3",
-  ROPSTEN_ADDRESS: "0x0c72eb3f9ad6c762c17adae11ffd2458ce533ef4"
-};
-
-interface AppState {
-  customHash: string | null,
-  customHashTimeoutID: ReturnType<typeof setTimeout> | undefined,
-  isSpinnerNeeded: boolean,
-  isSubmitEnabled: boolean,
-  message: string,
-  storageValue: number,
-}
-
 interface AppProps {
-  fullURL: string,
+  formState: FormState,
   isMetamaskDialogVisible: boolean,
+  isSpinnerNeeded: boolean,
   onMetamaskDialogAcceptClicked: () => void,
   onMetamaskDialogShouldClose: () => void,
-  onFullURLChange: (newFullURL: string) => void,
-  showMetamaskDialog: () => void,
+  onSendingHashToEthereum:
+    (payload: { messageKind: MessageKind, isSpinnerNeeded: boolean}) => void,
+  onSavedHashToEthereum:
+    (payload: { messageKind: MessageKind, isSpinnerNeeded: boolean, savedHash: string}) => void,
   updateWeb3State: (newWeb3State: Web3State) => void,
+  updateMessage: (newMessage: MessageKind) => void,
   web3State: Web3State,
 }
 
+interface AppState {
+}
+
 class App extends Component<AppProps, AppState> {
-  state: AppState = {
-    customHash: '',
-    customHashTimeoutID: undefined,
-    isSpinnerNeeded: false,
-    isSubmitEnabled: true,
-		message: '',
-		storageValue: 0,
-	};
 
 	async componentWillMount() {
 		document.title = "CrispLink: shorten that link!"
@@ -70,32 +45,17 @@ class App extends Component<AppProps, AppState> {
     }
 
     const hash = locationHash.substring(2);
-    const fullURL = await this.getFullURLFromHash(hash);
+    const fullURL = await getFullURLFromHash(hash);
+    if (fullURL === null) {
+      return;
+    }
     window.location.href = getURLForRedirect(fullURL);
 	}
 
-  async isHashTaken(hash: string) {
-    return (await this.getFullURLFromHash(hash)) !== null;
-  }
-
-  async getFullURLFromHash(hash: string) {
-    const components = await this.getWeb3Components(Permissions.READ_ONLY);
-    if (components === null) {
-      return null;
-    }
-
-    const fullURLRaw = await components.contract.get.call(
-      components.web3.utils.asciiToHex(hash)
-    );
-    if (fullURLRaw === null) {
-      return null;
-    }
-    return components.web3.utils.toAscii(fullURLRaw);
-  }
 
   render() {
     let spinner = null;
-    if (this.state.isSpinnerNeeded) {
+    if (this.props.isSpinnerNeeded) {
       spinner = <Spinner />;
     }
 
@@ -107,95 +67,13 @@ class App extends Component<AppProps, AppState> {
             onAcceptButtonClicked={this.onMetamaskDialogAcceptClicked.bind(this)}
             onDialogShouldClose={this.props.onMetamaskDialogShouldClose}
           />
-					<form onSubmit={this.onSubmit.bind(this)}>
-						<input
-							className="fullURLInput"
-							onChange={this.onFullURLChange.bind(this)}
-							placeholder="enter full url here"
-							type="text"
-						/>
-            <input
-              className="customHashInput"
-              onChange={this.onHashInputChange.bind(this)}
-              placeholder="(optional) specify your vanity url"
-              type="text"
-            />
-            <br />
-						<input disabled={this.isSubmitDisabled()} className="fullURLSubmit" type="submit" value="submit" />
-					</form>
-					<p className="Message-container"> {this.state.message} </p>
+          <PermaURLForm />
+          <Message />
           <div> {spinner} </div>
         </header>
       </div>
     );
 	}
-
-  isSubmitDisabled() {
-    return this.state.isSpinnerNeeded || !this.state.isSubmitEnabled;
-  }
-
-	onFullURLChange(e: React.FormEvent<HTMLInputElement>) {
-		e.preventDefault();
-    this.props.onFullURLChange(e.currentTarget.value);
-	}
-
-  async onHashInputChange(e: React.FormEvent<HTMLInputElement>) {
-    e.preventDefault();
-    if (this.state.customHashTimeoutID !== undefined) {
-      clearTimeout(this.state.customHashTimeoutID);
-    }
-
-    const customHash = e.currentTarget.value;
-    const timeoutID = setTimeout(async () => this.onHashInputChangeImpl(customHash), 200);
-    this.setState({
-      isSpinnerNeeded: true,
-      message: "checking if /" + customHash + " is available",
-      customHashTimeoutID: timeoutID
-    });
-    return;
-  }
-
-  async onHashInputChangeImpl(customHash: string) {
-    this.setState({ customHash: customHash, customHashTimeoutID: undefined });
-
-    // check if hash is taken
-    // if taken, show message and disable submit
-    const isHashTaken = await this.isHashTaken(customHash);
-    if (isHashTaken) {
-      this.setState({
-        isSubmitEnabled: false,
-        isSpinnerNeeded: false,
-        message: customHash + " has already been taken. Please try another one",
-      });
-      return;
-    }
-
-    // if not taken, then show preview
-    this.setState({
-      isSubmitEnabled: true,
-      isSpinnerNeeded: false,
-      message: 'your shortened url will be: ' + getHashedURL(customHash)
-        // TODO savil fixup
-        /*
-        <p>
-          your shortened url will be:
-          <br />
-          {getHashedURL(customHash)}
-          <br />
-        </p>
-        */
-    });
-  }
-
-	async onSubmit(e: React.FormEvent) {
-		e.preventDefault();
-		if (this.props.fullURL === '') {
-			this.setState({ message: 'yo! please enter a full url in the box' });
-			return;
-		}
-
-    this.props.showMetamaskDialog();
-  }
 
   async onMetamaskDialogAcceptClicked() {
     this.props.onMetamaskDialogAcceptClicked();
@@ -205,29 +83,21 @@ class App extends Component<AppProps, AppState> {
 		  await this.initWeb3();
     } catch (error) {
       if (error instanceof MissingWeb3Error) {
-        this.setState({
-          message: 'Alas, looks like you will need to install Metamask. This lets us save your URL securely.'
-            // TODO savil. fix up
-            /*
-            <p>
-              Alas, looks like you will need to
-              install <a href="https://metamask.io" rel="noopener noreferrer" target="_blank">Metamask</a>.
-              This lets us save your URL securely.
-            </p>
-            */
-        });
+        this.props.updateMessage(MessageKind.INSTALL_METAMASK);
         return;
       }
     }
 
-    let hashedURL = this.state.customHash;
+    let hashedURL = this.props.formState.customHash;
     if (hashedURL === '' || hashedURL === null) {
-      hashedURL = await this.hashFullURL(this.props.fullURL);
-      if (hashedURL === null) {
+      // if user has not specified a desired hash,
+      // then fallback to generating one ourselves
+      let autogeneratedHash = await this.hashFullURL(this.props.formState.fullURL);
+      if (autogeneratedHash === null) {
         return;
       }
+      hashedURL = autogeneratedHash;
     }
-		this.setState({ message: 'hashed url is: ' + hashedURL});
 
 		await this.saveToEthereum(hashedURL);
 	}
@@ -238,7 +108,7 @@ class App extends Component<AppProps, AppState> {
 			return;
 		}
 
-		const components = await this.getWeb3Components(Permissions.READ_WRITE);
+		const components = await getWeb3Components(Permissions.READ_WRITE);
     if (components === null) {
       return;
     }
@@ -252,40 +122,8 @@ class App extends Component<AppProps, AppState> {
 		});
 	}
 
-	async getWeb3Components(permissions: string) {
-    try {
-      // Get network provider and web3 instance.
-			const web3 = (permissions === Permissions.READ_ONLY)
-        ? await getWeb3ReadOnlyAsync(MODE)
-        : await getWeb3Async(MODE);
 
-      // Use web3 to get the user's accounts.
-      let accounts = null;
-			if (permissions === Permissions.READ_WRITE) {
-				accounts = await web3.eth.getAccounts();
-			}
-
-      // Get the contract instance.
-      const Contract = truffleContract(PermaURLStorageContract);
-      Contract.setProvider(web3.currentProvider);
-
-			let instance = null;
-			if (MODE === Mode.MAINNET) {
-				instance = await Contract.at(ContractAddress.MAINNET_ADDRESS);
-			} else {
-      	instance = await Contract.at(ContractAddress.ROPSTEN_ADDRESS);
-			}
-
-			return { web3, accounts, contract : instance };
-
-    } catch (error) {
-      // Catch any errors for any of the above operations.
-      console.log(error);
-			throw error;
-    }
-	}
-
-	async hashFullURL(fullURL: string) {
+	async hashFullURL(fullURL: string): Promise<string | null> {
 		const bigHash = await this.sha256(fullURL);
 
 		let totalAttempts = 0; // try 10 times and otherwise declare bankruptcy!
@@ -302,7 +140,7 @@ class App extends Component<AppProps, AppState> {
 			totalAttempts++;
 		}
 
-		this.setState({ message: 'failed to generate a suitable hash! Bummer.' });
+    this.props.updateMessage(MessageKind.FAILED_TO_GENERATE_HASH);
 		return null;
 	}
 
@@ -320,85 +158,62 @@ class App extends Component<AppProps, AppState> {
 }
 
 	async saveToEthereum(hashedURL: string) {
-
 		// set loading indicator
-		this.setState({
+    this.props.onSendingHashToEthereum({
+      messageKind: MessageKind.SENDING_TO_ETHEREUM,
       isSpinnerNeeded: true,
-			message: "Alrighty, sending to ethereum. Will take like 20 seconds. " + this.getEncouragement()
-		});
+    });
 
 		// send hash => original to ethereum
 		try {
 			await this.props.web3State.contract.set(
 				this.props.web3State.web3.utils.asciiToHex(hashedURL),
-				this.props.web3State.web3.utils.asciiToHex(this.props.fullURL),
+				this.props.web3State.web3.utils.asciiToHex(this.props.formState.fullURL),
 				{ from: this.props.web3State.accounts[0] }
 			);
 		} catch (e) {
       console.error(e);
-			this.setState({
+      this.props.onSendingHashToEthereum({
+        messageKind: MessageKind.ERROR_SENDING_TO_ETHEREUM,
         isSpinnerNeeded: false,
-        message: "There was an error posting to ethereum. Sad puppy :-("
       });
 			return;
 		}
 
-    const resultHashedURL = getHashedURL(hashedURL);
-    // TODO savil. fixup.
-    const message =
-      <p>
-				{resultHashedURL}
-        &nbsp; &nbsp; &nbsp; &nbsp; (
-        <a
-          className="App-link"
-          onClick={() => this.copyResultToClipboard(resultHashedURL)}
-          >
-          copy
-        </a>
-        {')'}
-      </p>;
-		this.setState({
+    this.props.onSavedHashToEthereum({
       isSpinnerNeeded: false,
-			message: resultHashedURL
-		});
+      messageKind: MessageKind.HASHED_URL_WITH_COPY,
+      savedHash: hashedURL,
+    });
   }
-
-  copyResultToClipboard(resultHashedURL: string) {
-    copyToClipboard(resultHashedURL);
-  }
-
-	getEncouragement() {
-		const encouragements = [
-			"Be patient, and hold your horses!",
-			"Close your eyes and think about your first true love!",
-			"A good time to step back, and do some stretches!",
-			"But if you stare real hard, it'll happen faster! Promise ;-)",
-			"Close your eyes, and meditate on the sounds around you!",
-			"Close your eyes, and meditate on your breathing!",
-			"A test of your will power is commencing. Try your best to not switch to reddit or twitter!"
-		];
-		const randIndex = Math.floor(Math.random() * encouragements.length);
-		return encouragements[randIndex];
-	}
 }
 
 // dispatch
 function mapDispatchToProps(dispatch: Dispatch<actions.PermaURLAction>) {
   return {
-    onFullURLChange: (newFullURL: string) => dispatch(actions.fullURLChanged(newFullURL)),
     onMetamaskDialogShouldClose: () => dispatch(actions.modalCancelClicked()),
     onMetamaskDialogAcceptClicked: () => dispatch(actions.modalAcceptClicked()),
-    showMetamaskDialog: () => dispatch(actions.showMetamaskDialog()),
     updateWeb3State: (newWeb3State: Web3State) => dispatch(actions.updateWeb3State(newWeb3State)),
+    updateMessage: (newMessage: MessageKind) => dispatch(actions.updateMessage(newMessage)),
+
+    onSendingHashToEthereum:
+      (payload: { messageKind: MessageKind, isSpinnerNeeded: boolean }) =>
+        dispatch(actions.onSendingHashToEthereum(payload)),
+    onSavedHashToEthereum:
+      (payload: { messageKind: MessageKind, isSpinnerNeeded: boolean, savedHash: string }) =>
+        dispatch(actions.onSavedHashToEthereum(payload)),
   };
 }
 
 function mapStateToProps(state: StoreState) {
   return {
-    fullURL: state.fullURL,
+    formState: state.formState,
     isMetamaskDialogVisible: state.isMetamaskDialogVisible,
+    isSpinnerNeeded: state.isSpinnerNeeded,
     web3State: state.web3State,
   }
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);
+
+// utilities //////

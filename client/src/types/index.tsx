@@ -10,14 +10,47 @@ export const initWeb3State: Web3State = {
   web3 : null,
 }
 
-export interface StoreState {
+export enum MessageKind {
+  CHECKING_AVAILABILITY = 'CHECKING_AVAILABILITY',
+  EMPTY_URL = 'EMPTY_URL',
+  ERROR_SENDING_TO_ETHEREUM = 'ERROR_SENDING_TO_ETHEREUM',
+  FAILED_TO_GENERATE_HASH = 'FAILED_TO_GENERATE_HASH',
+  INSTALL_METAMASK= 'INSTALL_METAMASK',
+  HASH_TAKEN_TRY_ANOTHER = 'HASH_TAKEN_TRY_ANOTHER',
+  HASHED_URL_WITH_COPY = 'HASHED_URL_WITH_COPY',
+  NONE = 'NONE',
+  SENDING_TO_ETHEREUM = 'SENDING_TO_ETHEREUM',
+  SHORT_URL_PREVIEW = 'SHORT_URL_PREVIEW',
+}
+
+export interface FormState {
+  customHash: string,
   fullURL: string,
+  isSubmitEnabled: boolean,
+  customHashTimeoutID: ReturnType<typeof setTimeout> | undefined,
+}
+
+export const initFormState: FormState = {
+  customHash: '',
+  fullURL: '',
+  isSubmitEnabled: true,
+  customHashTimeoutID: undefined,
+}
+
+export interface StoreState {
+  formState: FormState,
   isMetamaskDialogVisible: boolean,
+  isSpinnerNeeded: boolean,
+  messageKind: MessageKind,
+  savedHash: string | null,
   web3State: Web3State,
 }
 
 export const initialState: StoreState = {
-  fullURL: '',
+  formState: initFormState,
   isMetamaskDialogVisible: false,
+  isSpinnerNeeded: false,
+  messageKind: MessageKind.NONE,
+  savedHash: null,
   web3State: initWeb3State,
 }
