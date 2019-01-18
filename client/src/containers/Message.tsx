@@ -26,10 +26,10 @@ class Message extends Component<MessageProps, MessageState> {
   getMessageInternals() {
     switch (this.props.messageKind) {
       case MessageKind.CHECKING_AVAILABILITY:
-        return "checking if /" + this.props.customHash + " is available.";
+        return (<p> checking if /{this.props.customHash} is available.</p>);
 
       case MessageKind.HASH_TAKEN_TRY_ANOTHER:
-        return "/" + this.props.customHash + " has already been taken. Please try another one.";
+        return (<p>/{this.props.customHash} has already been taken. Please try another one.</p>);
 
       case MessageKind.SHORT_URL_PREVIEW:
         return (
@@ -42,7 +42,7 @@ class Message extends Component<MessageProps, MessageState> {
         );
 
       case MessageKind.EMPTY_URL:
-        return 'yo! please enter a full url in the box.';
+        return (<p>yo! please enter a full url in the box.</p>);
 
       case MessageKind.INSTALL_METAMASK:
         return (
@@ -54,7 +54,7 @@ class Message extends Component<MessageProps, MessageState> {
           );
 
       case MessageKind.SENDING_TO_ETHEREUM:
-        return "Alrighty, saving on ethereum. Will take around 20 seconds. " + getEncouragement();
+        return (<p>Alrighty, saving on ethereum. Will take around 20 seconds. {getEncouragement()}</p>);
 
       case MessageKind.HASHED_URL_WITH_COPY:
         const resultHashedURL = this.props.savedHash === null ? '' : getHashedURL(this.props.savedHash);
@@ -73,10 +73,10 @@ class Message extends Component<MessageProps, MessageState> {
         );
 
       case MessageKind.FAILED_TO_GENERATE_HASH:
-        return "Failed to generate a suitable hash! Bummer.";
+        return (<p>"Failed to generate a suitable hash! Bummer."</p>);
 
       case MessageKind.ERROR_SENDING_TO_ETHEREUM:
-        return "There was an error saving on ethereum. Sad puppy :-(";
+        return (<p>"There was an error saving on ethereum. Sad puppy :-("</p>);
 
       case MessageKind.NONE:
       default:
