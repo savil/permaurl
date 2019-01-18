@@ -5,7 +5,7 @@ import { Dispatch } from 'redux';
 import * as actions from "./actions/";
 import { MissingWeb3Error } from "./utils/errors";
 import { getURLForRedirect } from "./utils/Host";
-import Message from "./containers/message";
+import Message from "./containers/Message";
 import PermaURLForm from "./containers/PermaURLForm";
 import PermaURLModalDialog from "./containers/PermaURLModalDialog";
 import { getFullURLFromHash, getWeb3Components, Permissions } from "./utils/PermaURLUtil";
