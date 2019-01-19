@@ -1,9 +1,9 @@
 import React, { Component } from "react";
 
-import "./ModalDialog.css"
+import "./ModalDialog.css";
 
 interface ModalDialogState {
-  isVisible: boolean
+  isVisible: boolean;
 }
 
 interface ModalDialogProps {
@@ -20,28 +20,27 @@ class ModalDialog extends Component<ModalDialogProps, ModalDialogState> {
 
   componentWillReceiveProps(nextProps: ModalDialogProps) {
     if (nextProps.isVisible !== this.props.isVisible) {
-      this.setState({isVisible: nextProps.isVisible});
+      this.setState({ isVisible: nextProps.isVisible });
     }
   }
 
   render() {
     const overlayStyle = {
       display: this.state.isVisible ? "block" : "none"
-    }
+    };
 
     return (
       <div
         className="ModalDialogOverlay"
         onClick={this.onOverlayClicked.bind(this)}
         style={overlayStyle}
-        >
+      >
         <div className="ModalDialogContainer">
-          <div>
-          {this.props.children}
-          </div>
+          <div>{this.props.children}</div>
           <button
             className="Accept"
-            onClick={this.onAcceptButtonClicked.bind(this)}>
+            onClick={this.onAcceptButtonClicked.bind(this)}
+          >
             Sounds good
           </button>
           <button onClick={this.onCancelButtonClicked.bind(this)}>

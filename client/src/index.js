@@ -1,14 +1,14 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { Provider } from 'react-redux';
-import { createStore } from 'redux';
+import React from "react";
+import ReactDOM from "react-dom";
+import { Provider } from "react-redux";
+import { createStore } from "redux";
 
-import App from './App';
+import App from "./App";
 import { permaURLAppReducers } from "./reducers/";
-import * as serviceWorker from './serviceWorker';
+import * as serviceWorker from "./serviceWorker";
 import { initialState } from "./types/index";
 
-import './index.css';
+import "./index.css";
 
 // store
 const store = createStore(permaURLAppReducers, initialState);
@@ -17,7 +17,7 @@ ReactDOM.render(
   <Provider store={store}>
     <App />
   </Provider>,
-  document.getElementById('root')
+  document.getElementById("root")
 );
 
 // If you want your app to work offline and load faster, you can change
