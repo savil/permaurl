@@ -81,9 +81,7 @@ class PermaURLForm extends Component<PermaURLFormProps, PermaURLFormState> {
     }
 
     const customHash = e.currentTarget.value;
-    console.log(customHash, 'customHash');
     if (customHash === '') {
-      console.log('cancelling!');
       this.props.onHashInputChange({
         customHash: customHash,
         customHashTimeoutID: undefined,
@@ -149,7 +147,6 @@ export async function isHashTaken(hash: string): Promise<boolean> {
 }
 
 function mapStateToProps(state: StoreState) {
-  console.log('mapping state to props', state.formState);
   return {
     formState: state.formState,
   };
