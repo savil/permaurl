@@ -54,7 +54,7 @@ export interface OnHashInputChangeAction {
   type: string,
   payload: {
     customHash: string,
-    customHashTimeoutID: ReturnType<typeof setTimeout>
+    customHashTimeoutID: ReturnType<typeof setTimeout> | undefined,
     isSpinnerNeeded: boolean,
     isSubmitEnabled: boolean,
     messageKind: MessageKind,
@@ -63,7 +63,7 @@ export interface OnHashInputChangeAction {
 export function onHashInputChange(
   payload: {
     customHash: string,
-    customHashTimeoutID: ReturnType<typeof setTimeout>
+    customHashTimeoutID: ReturnType<typeof setTimeout> | undefined,
     isSpinnerNeeded: boolean,
     isSubmitEnabled: boolean,
     messageKind: MessageKind,

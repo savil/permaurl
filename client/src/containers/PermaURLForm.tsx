@@ -12,7 +12,7 @@ interface PermaURLFormProps {
   onHashInputChange:
     (payload: {
       customHash: string,
-      customHashTimeoutID: ReturnType<typeof setTimeout>,
+      customHashTimeoutID: ReturnType<typeof setTimeout> | undefined,
       isSpinnerNeeded: boolean,
       isSubmitEnabled: boolean,
       messageKind: MessageKind,
@@ -81,6 +81,19 @@ class PermaURLForm extends Component<PermaURLFormProps, PermaURLFormState> {
     }
 
     const customHash = e.currentTarget.value;
+    console.log(customHash, 'customHash');
+    if (customHash === '') {
+      console.log('cancelling!');
+      this.props.onHashInputChange({
+        customHash: customHash,
+        customHashTimeoutID: undefined,
+        isSpinnerNeeded: false,
+        isSubmitEnabled: true,
+        messageKind: MessageKind.NONE,
+      });
+      return;
+    }
+
     const timeoutID = setTimeout(
       async () => this.onHashInputChangeImpl(customHash),
       200, // milliseconds
@@ -96,10 +109,20 @@ class PermaURLForm extends Component<PermaURLFormProps, PermaURLFormState> {
   }
 
   async onHashInputChangeImpl(customHash: string) {
+    if (this.props.formState.customHashTimeoutID === undefined) {
+      return; // abort if already cancelled.
+    }
+
+    let isTaken = await isHashTaken(customHash);
+
+    // need to check this again!
+    if (this.props.formState.customHashTimeoutID === undefined) {
+      return; // abort if already cancelled.
+    }
 
     // check if hash is taken
     // if taken, show message and disable submit
-    if (await isHashTaken(customHash)) {
+    if (isTaken) {
       this.props.onCustomHashCheckIsResolved({
         customHash: customHash,
         customHashTimeoutID: undefined,
@@ -126,6 +149,7 @@ export async function isHashTaken(hash: string): Promise<boolean> {
 }
 
 function mapStateToProps(state: StoreState) {
+  console.log('mapping state to props', state.formState);
   return {
     formState: state.formState,
   };
@@ -149,7 +173,7 @@ function mapDispatchToProps(dispatch: Dispatch<actions.PermaURLAction>) {
     onHashInputChange:
       (payload: {
         customHash: string,
-        customHashTimeoutID: ReturnType<typeof setTimeout>
+        customHashTimeoutID: ReturnType<typeof setTimeout> | undefined,
         isSpinnerNeeded: boolean,
         isSubmitEnabled: boolean,
         messageKind: MessageKind,
