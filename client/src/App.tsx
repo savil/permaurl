@@ -8,6 +8,7 @@ import { getURLForRedirect } from "./utils/Host";
 import Message from "./containers/Message";
 import PermaURLForm from "./containers/PermaURLForm";
 import PermaURLModalDialog from "./containers/PermaURLModalDialog";
+import PermaURLOptions from "./containers/PermaURLOptions";
 import {
   getFullURLFromHash,
   getWeb3Components,
@@ -75,6 +76,7 @@ class App extends Component<AppProps, AppState> {
             onDialogShouldClose={this.props.onMetamaskDialogShouldClose}
           />
           <PermaURLForm />
+          <PermaURLOptions />
           <Message />
           <div> {this.props.isSpinnerNeeded ? <Spinner /> : null} </div>
         </header>

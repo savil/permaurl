@@ -37,11 +37,27 @@ export const initFormState: FormState = {
   customHashTimeoutID: undefined,
 }
 
+export enum BackingStore {
+  MAINNET = 'MAINNET',
+  ROPSTEN = 'ROPSTEN',
+}
+
+export interface OptionsState {
+  isVisible: boolean
+  backingStore: BackingStore,
+}
+
+export const initOptionsState: OptionsState = {
+  isVisible: false,
+  backingStore: BackingStore.ROPSTEN,
+}
+
 export interface StoreState {
   formState: FormState,
   isMetamaskDialogVisible: boolean,
   isSpinnerNeeded: boolean,
   messageKind: MessageKind,
+  optionsState: OptionsState,
   savedHash: string | null,
   web3State: Web3State,
 }
@@ -51,6 +67,7 @@ export const initialState: StoreState = {
   isMetamaskDialogVisible: false,
   isSpinnerNeeded: false,
   messageKind: MessageKind.NONE,
+  optionsState: initOptionsState,
   savedHash: null,
   web3State: initWeb3State,
 }

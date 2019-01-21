@@ -1,5 +1,5 @@
 import * as constants from "../constants";
-import { MessageKind, Web3State } from "../types";
+import { BackingStore, MessageKind, Web3State } from "../types";
 
 // Style note:
 // since all actions have the type attribute, it is specified on top
@@ -140,6 +140,32 @@ export function onSavedHashToEthereum(
   }
 }
 
+export interface SetOptionsVisibilityAction {
+  type: string,
+  doShow: boolean,
+}
+export function setOptionsVisibility(
+  doShow: boolean,
+): SetOptionsVisibilityAction {
+  return {
+    type: constants.SET_OPTIONS_VISIBILITY,
+    doShow: doShow,
+  }
+}
+
+export interface SetBackingStoreAction {
+  type: string,
+  newStore: BackingStore,
+}
+export function setBackingStore(
+  newStore: BackingStore,
+): SetBackingStoreAction {
+  return {
+    type: constants.SET_BACKING_STORE,
+    newStore: newStore,
+  }
+}
+
 export type PermaURLAction =
   FullURLChangedAction |
   ModalAcceptClicked |
@@ -148,6 +174,8 @@ export type PermaURLAction =
   OnHashInputChangeAction |
   OnSavedHashToEthereumAction |
   OnSendingHashToEthereumAction |
+  SetBackingStoreAction |
+  SetOptionsVisibilityAction |
   ShowMetamaskDialog |
   UpdateMessageAction |
   UpdateWeb3StateAction;

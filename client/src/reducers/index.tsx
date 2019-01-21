@@ -8,6 +8,8 @@ import {
   initialState,
   initWeb3State,
   MessageKind,
+  OptionsState,
+  initOptionsState,
   StoreState,
   Web3State,
 } from "../types/";
@@ -120,11 +122,32 @@ function isSpinnerNeeded(
   }
 }
 
+function optionsState(
+  state: OptionsState | undefined = initOptionsState,
+  action: actions.PermaURLAction,
+): OptionsState {
+  switch (action.type) {
+      case constants.SET_OPTIONS_VISIBILITY:
+        return {
+          ...state,
+          isVisible: (action as actions.SetOptionsVisibilityAction).doShow,
+        };
+      case constants.SET_BACKING_STORE:
+        return {
+          ...state,
+          backingStore: (action as actions.SetBackingStoreAction).newStore,
+        };
+    default:
+      return state;
+  }
+}
+
 export const permaURLAppReducers = combineReducers({
   formState: formState,
   isMetamaskDialogVisible: isMetamaskDialogVisible,
   isSpinnerNeeded: isSpinnerNeeded,
   messageKind: messageKind,
+  optionsState: optionsState,
   savedHash: savedHash,
   web3State: web3State,
 });
