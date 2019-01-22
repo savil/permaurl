@@ -17,7 +17,6 @@ function getPrefix(backingStore: BackingStore): string {
 export function getBackingStoreFromPrefix(hash: string): BackingStore | null {
 
   const firstChar = hash[1];
-  console.log('first char ', firstChar);
   switch (firstChar) {
     case 'm':
       return BackingStore.MAINNET;

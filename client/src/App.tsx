@@ -57,16 +57,13 @@ class App extends Component<AppProps, AppState> {
     document.title = "CrispLink: shorten that link!";
 
     const locationHash = window.location.hash;
-    console.log("location hash", locationHash);
 
     // locationHash is more than just "#/"
     if (locationHash.length <= 3) {
-      console.log("length less than 2");
       return;
     }
     // locationHash must start with "#<prefix-char>/"
     if (locationHash[2] !== "/") {
-      console.log("quitting b/c no fwd slash");
       return;
     }
 
