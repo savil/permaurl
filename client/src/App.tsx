@@ -15,7 +15,13 @@ import {
   Permissions
 } from "./utils/PermaURLUtil";
 import Spinner from "./external/react-spinner/react-spinner";
-import { BackingStore, FormState, MessageKind, StoreState, Web3State } from "./types/";
+import {
+  BackingStore,
+  FormState,
+  MessageKind,
+  StoreState,
+  Web3State
+} from "./types/";
 
 import "./App.css";
 
@@ -51,16 +57,16 @@ class App extends Component<AppProps, AppState> {
     document.title = "CrispLink: shorten that link!";
 
     const locationHash = window.location.hash;
-    console.log('location hash', locationHash);
+    console.log("location hash", locationHash);
 
     // locationHash is more than just "#/"
     if (locationHash.length <= 3) {
-      console.log('length less than 2');
+      console.log("length less than 2");
       return;
     }
     // locationHash must start with "#<prefix-char>/"
-    if (locationHash[2] !== '/') {
-      console.log('quitting b/c no fwd slash');
+    if (locationHash[2] !== "/") {
+      console.log("quitting b/c no fwd slash");
       return;
     }
 
@@ -132,7 +138,10 @@ class App extends Component<AppProps, AppState> {
       return;
     }
 
-    const components = await getWeb3Components(Permissions.READ_WRITE, this.props.backingStore);
+    const components = await getWeb3Components(
+      Permissions.READ_WRITE,
+      this.props.backingStore
+    );
     if (components === null) {
       return;
     }
