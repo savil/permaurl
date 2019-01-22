@@ -1,6 +1,6 @@
 import Web3 from "web3";
 import HDWalletProvider from "truffle-hdwallet-provider";
-import { Mode, ModeInterface } from "./mode";
+import { Mode } from "./mode";
 import { MissingWeb3Error } from "./errors";
 
 export const getWeb3 = (mode: string) =>

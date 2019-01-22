@@ -4,9 +4,10 @@ import { Dispatch } from 'redux';
 
 import * as actions from "../actions/";
 import { getFullURLFromHash } from "../utils/PermaURLUtil";
-import { FormState, MessageKind, StoreState } from "../types";
+import { BackingStore, FormState, MessageKind, StoreState } from "../types";
 
 interface PermaURLFormProps {
+  backingStore: BackingStore,
   formState: FormState,
   onFullURLChange: (newFullURL: string) => void,
   onHashInputChange:
@@ -111,7 +112,7 @@ class PermaURLForm extends Component<PermaURLFormProps, PermaURLFormState> {
       return; // abort if already cancelled.
     }
 
-    let isTaken = await isHashTaken(customHash);
+    let isTaken = await this.isHashTaken(customHash);
 
     // need to check this again!
     if (this.props.formState.customHashTimeoutID === undefined) {
@@ -140,14 +141,15 @@ class PermaURLForm extends Component<PermaURLFormProps, PermaURLFormState> {
       messageKind: MessageKind.SHORT_URL_PREVIEW,
     });
   }
-}
 
-export async function isHashTaken(hash: string): Promise<boolean> {
-  return (await getFullURLFromHash(hash)) !== null;
+  async isHashTaken(hash: string): Promise<boolean> {
+    return (await getFullURLFromHash(hash, this.props.backingStore)) !== null;
+  }
 }
 
 function mapStateToProps(state: StoreState) {
   return {
+    backingStore: state.optionsState.backingStore,
     formState: state.formState,
   };
 }

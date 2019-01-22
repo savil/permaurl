@@ -1,6 +1,31 @@
 
-export function getHashedURL(hashedURL: string): string {
-  return getHostname() + "/#/" + hashedURL;
+import { BackingStore } from "../types/";
+
+export function getHashedURL(hashedURL: string, backingStore: BackingStore): string {
+  return getHostname() + "/#" + getPrefix(backingStore) + "/" + hashedURL;
+}
+
+function getPrefix(backingStore: BackingStore): string {
+  switch (backingStore) {
+    case BackingStore.MAINNET:
+      return "m";
+    case BackingStore.ROPSTEN:
+      return "r";
+  }
+}
+
+export function getBackingStoreFromPrefix(hash: string): BackingStore | null {
+
+  const firstChar = hash[1];
+  console.log('first char ', firstChar);
+  switch (firstChar) {
+    case 'm':
+      return BackingStore.MAINNET;
+    case 'r':
+      return BackingStore.ROPSTEN;
+    default:
+      return null;
+  }
 }
 
 function getHostname(): string {

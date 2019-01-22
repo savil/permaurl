@@ -31,7 +31,7 @@ class PermaURLOptions extends Component<PermaURLOptionsProps, PermaURLOptionsSta
           Storage:
           <select onChange={this.onStorageOptionChange.bind(this)}>
             <option value={BackingStore.MAINNET}>Mainnet (real ethereum) </option>
-            <option value={BackingStore.ROPSTEN}>Ropsten (fake ethereum, costs nothing to try) </option>
+            <option selected={true} value={BackingStore.ROPSTEN}>Ropsten (fake ethereum, costs nothing to try) </option>
           </select>
         </div>
       </div>

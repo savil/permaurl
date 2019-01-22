@@ -1,7 +1,7 @@
 import truffleContract from "truffle-contract";
 
 import { Mode } from "./mode";
-import { Web3State } from "../types";
+import { BackingStore, Web3State } from "../types";
 import { getWeb3Async, getWeb3ReadOnlyAsync } from "./getWeb3";
 import PermaURLStorageContract from "../contracts/PermaURLStorage.json";
 
@@ -18,8 +18,8 @@ const ContractAddress = {
   ROPSTEN_ADDRESS: "0x0c72eb3f9ad6c762c17adae11ffd2458ce533ef4"
 };
 
-export async function getFullURLFromHash(hash: string): Promise<string | null> {
-  const components = await getWeb3Components(Permissions.READ_ONLY);
+export async function getFullURLFromHash(hash: string, backingStore: BackingStore): Promise<string | null> {
+  const components = await getWeb3Components(Permissions.READ_ONLY, backingStore);
   if (components === null) {
     return null;
   }
@@ -33,12 +33,16 @@ export async function getFullURLFromHash(hash: string): Promise<string | null> {
   return components.web3.utils.toAscii(fullURLRaw);
 }
 
-export async function getWeb3Components(permissions: string): Promise<Web3State> {
+export async function getWeb3Components(
+  permissions: string,
+  backingStore: BackingStore,
+): Promise<Web3State> {
+  let mode = getModeFromBackingStore(backingStore);
   try {
     // Get network provider and web3 instance.
     const web3 = (permissions === Permissions.READ_ONLY)
-      ? await getWeb3ReadOnlyAsync(MODE)
-      : await getWeb3Async(MODE);
+      ? await getWeb3ReadOnlyAsync(mode)
+      : await getWeb3Async(mode);
 
     // Use web3 to get the user's accounts.
     let accounts = null;
@@ -51,7 +55,7 @@ export async function getWeb3Components(permissions: string): Promise<Web3State>
     Contract.setProvider(web3.currentProvider);
 
     let instance = null;
-    if (MODE === Mode.MAINNET) {
+    if (mode === Mode.MAINNET) {
       instance = await Contract.at(ContractAddress.MAINNET_ADDRESS);
     } else {
       instance = await Contract.at(ContractAddress.ROPSTEN_ADDRESS);
@@ -63,5 +67,16 @@ export async function getWeb3Components(permissions: string): Promise<Web3State>
     // Catch any errors for any of the above operations.
     console.log(error);
     throw error;
+  }
+}
+
+function getModeFromBackingStore(
+  backingStore: BackingStore,
+): Mode {
+  switch (backingStore) {
+    case BackingStore.MAINNET:
+      return Mode.MAINNET;
+    case BackingStore.ROPSTEN:
+      return Mode.ROPSTEN;
   }
 }

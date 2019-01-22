@@ -1,13 +1,8 @@
-export interface ModeInterface {
-  MAINNET: string,
-  ROPSTEN: string,
-  LOCALHOST: string
+// TODO savil consolidate with BackingStore?
+export enum Mode {
+  MAINNET = "mainnet",
+  ROPSTEN = "ropsten",
+  LOCALHOST = "localhost",
 }
-
-export const Mode: ModeInterface = {
-  MAINNET: "mainnet",
-  ROPSTEN: "ropsten",
-  LOCALHOST: "localhost"
-};
 
 export default Mode;

@@ -4,7 +4,7 @@ import { Dispatch } from "redux";
 
 import * as actions from "./actions/";
 import { MissingWeb3Error } from "./utils/errors";
-import { getURLForRedirect } from "./utils/Host";
+import { getBackingStoreFromPrefix, getURLForRedirect } from "./utils/Host";
 import Message from "./containers/Message";
 import PermaURLForm from "./containers/PermaURLForm";
 import PermaURLModalDialog from "./containers/PermaURLModalDialog";
@@ -15,11 +15,12 @@ import {
   Permissions
 } from "./utils/PermaURLUtil";
 import Spinner from "./external/react-spinner/react-spinner";
-import { FormState, MessageKind, StoreState, Web3State } from "./types/";
+import { BackingStore, FormState, MessageKind, StoreState, Web3State } from "./types/";
 
 import "./App.css";
 
 interface AppProps {
+  backingStore: BackingStore;
   formState: FormState;
   isMetamaskDialogVisible: boolean;
   isSpinnerNeeded: boolean;
@@ -50,14 +51,26 @@ class App extends Component<AppProps, AppState> {
     document.title = "CrispLink: shorten that link!";
 
     const locationHash = window.location.hash;
+    console.log('location hash', locationHash);
 
     // locationHash is more than just "#/"
-    if (locationHash.length <= 2) {
+    if (locationHash.length <= 3) {
+      console.log('length less than 2');
+      return;
+    }
+    // locationHash must start with "#<prefix-char>/"
+    if (locationHash[2] !== '/') {
+      console.log('quitting b/c no fwd slash');
       return;
     }
 
-    const hash = locationHash.substring(2);
-    const fullURL = await getFullURLFromHash(hash);
+    const backingStore = getBackingStoreFromPrefix(locationHash);
+    if (backingStore === null) {
+      return;
+    }
+
+    const hash = locationHash.substring(3);
+    const fullURL = await getFullURLFromHash(hash, backingStore);
     if (fullURL === null) {
       return;
     }
@@ -119,7 +132,7 @@ class App extends Component<AppProps, AppState> {
       return;
     }
 
-    const components = await getWeb3Components(Permissions.READ_WRITE);
+    const components = await getWeb3Components(Permissions.READ_WRITE, this.props.backingStore);
     if (components === null) {
       return;
     }
@@ -224,6 +237,7 @@ function mapDispatchToProps(dispatch: Dispatch<actions.PermaURLAction>) {
 
 function mapStateToProps(state: StoreState) {
   return {
+    backingStore: state.optionsState.backingStore,
     formState: state.formState,
     isMetamaskDialogVisible: state.isMetamaskDialogVisible,
     isSpinnerNeeded: state.isSpinnerNeeded,

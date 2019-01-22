@@ -5,9 +5,10 @@ import { Dispatch } from 'redux';
 import * as actions from "../actions/";
 import { copyToClipboard } from "../utils/clipboard";
 import { getHashedURL } from "../utils/Host";
-import { MessageKind, StoreState } from "../types";
+import { BackingStore, MessageKind, StoreState } from "../types";
 
 interface MessageProps {
+  backingStore: BackingStore,
   customHash: string,
   messageKind: MessageKind,
   savedHash: string | null,
@@ -36,7 +37,7 @@ class Message extends Component<MessageProps, MessageState> {
           <p>
             your shortened url will be:
             <br />
-            {getHashedURL(this.props.customHash)}
+            {getHashedURL(this.props.customHash, this.props.backingStore)}
             <br />
           </p>
         );
@@ -57,7 +58,7 @@ class Message extends Component<MessageProps, MessageState> {
         return (<p>Alrighty, saving on ethereum. Will take around 20 seconds. {getEncouragement()}</p>);
 
       case MessageKind.HASHED_URL_WITH_COPY:
-        const resultHashedURL = this.props.savedHash === null ? '' : getHashedURL(this.props.savedHash);
+        const resultHashedURL = this.props.savedHash === null ? '' : getHashedURL(this.props.savedHash, this.props.backingStore);
         return (
           <p>
             {resultHashedURL}
@@ -101,6 +102,7 @@ function getEncouragement(): string {
 
 function mapStateToProps(state: StoreState) {
   return {
+    backingStore: state.optionsState.backingStore,
     customHash: state.formState.customHash,
     savedHash: state.savedHash,
     messageKind: state.messageKind,
