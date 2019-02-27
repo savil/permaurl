@@ -108,15 +108,16 @@ class PermaURLForm extends Component<PermaURLFormProps, PermaURLFormState> {
   }
 
   async onHashInputChangeImpl(customHash: string) {
-    if (this.props.formState.customHashTimeoutID === undefined) {
+
+    var timeoutID = this.props.formState.customHashTimeoutID;
+    if (timeoutID === undefined) {
       return; // abort if already cancelled.
     }
 
     let isTaken = await this.isHashTaken(customHash);
 
-    // need to check this again!
-    if (this.props.formState.customHashTimeoutID === undefined) {
-      return; // abort if already cancelled.
+    if (timeoutID !== this.props.formState.customHashTimeoutID) {
+      return; // abort if customHashTimeoutID changed while waiting
     }
 
     // check if hash is taken
